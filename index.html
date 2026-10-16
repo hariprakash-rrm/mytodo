@@ -771,32 +771,7 @@
                 <!-- 1. OVERDUE CARRIED TASKS SECTION (TOP PROMINENT) -->
                 <div id="overdue-carried-section" class="space-y-2"></div>
 
-                <!-- 2. TODAY'S TASKS SECTION -->
-                <div class="space-y-2.5 pt-2 border-t border-borderSubtle">
-                    <div class="flex items-center justify-between flex-wrap gap-2">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
-                        <div class="flex items-center space-x-2 flex-wrap">
-                            <!-- Status Filter Dropdown -->
-                            <select id="task-status-filter" onchange="updateTaskStatusFilter(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="all" ${taskStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
-                                <option value="todo" ${taskStatusFilter === 'todo' ? 'selected' : ''}>To Do</option>
-                                <option value="in_progress" ${taskStatusFilter === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                <option value="done" ${taskStatusFilter === 'done' ? 'selected' : ''}>Done</option>
-                            </select>
-
-                            <!-- Date Sort Dropdown -->
-                            <select id="task-date-sort" onchange="updateTaskDateSort(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="asc" ${taskDateSort === 'asc' ? 'selected' : ''}>Date: Asc (Oldest)</option>
-                                <option value="desc" ${taskDateSort === 'desc' ? 'selected' : ''}>Date: Desc (Newest)</option>
-                            </select>
-
-                            <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
-                        </div>
-                    </div>
-                    <div id="project-tasks-list" class="space-y-2"></div>
-                </div>
-
-                <!-- 3. COLLAPSIBLE CALENDAR SECTION (BOTTOM) -->
+                <!-- 2. COLLAPSIBLE CALENDAR SECTION -->
                 <div class="bg-cardBg border border-borderSubtle rounded-2xl p-3 md:p-4 shadow-2xs space-y-3 pt-3">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center space-x-2 min-w-0">
@@ -861,6 +836,31 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 3. TODAY'S TASKS SECTION -->
+                <div class="space-y-2.5 pt-2 border-t border-borderSubtle">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
+                        <div class="flex items-center space-x-2 flex-wrap">
+                            <!-- Status Filter Dropdown -->
+                            <select id="task-status-filter" onchange="updateTaskStatusFilter(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="all" ${taskStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
+                                <option value="todo" ${taskStatusFilter === 'todo' ? 'selected' : ''}>To Do</option>
+                                <option value="in_progress" ${taskStatusFilter === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="done" ${taskStatusFilter === 'done' ? 'selected' : ''}>Done</option>
+                            </select>
+
+                            <!-- Date Sort Dropdown -->
+                            <select id="task-date-sort" onchange="updateTaskDateSort(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="asc" ${taskDateSort === 'asc' ? 'selected' : ''}>Date: Asc (Oldest)</option>
+                                <option value="desc" ${taskDateSort === 'desc' ? 'selected' : ''}>Date: Desc (Newest)</option>
+                            </select>
+
+                            <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
+                        </div>
+                    </div>
+                    <div id="project-tasks-list" class="space-y-2"></div>
+                </div>
             `;
 
             workspace.innerHTML = html;
@@ -905,7 +905,6 @@
                                         </button>
                                         <div class="truncate">
                                             <div class="flex items-center space-x-2">
-                                                <span class="text-rose-600 font-bold bg-rose-100 text-[10px] px-1.5 py-0.5 rounded border border-rose-300 shrink-0"><i class="fa-solid fa-triangle-exclamation mr-0.5"></i>Overdue</span>
                                                 <p class="text-xs font-medium text-accentDark truncate ${isDone ? 'line-through text-textSecondary' : ''}">${escapeHtml(task.title)}</p>
                                                 ${task.dueTime ? `<span class="text-[10px] bg-rose-50 text-rose-600 font-semibold px-2 py-0.5 rounded-md shrink-0"><i class="fa-regular fa-clock mr-1"></i>${task.dueTime}</span>` : ''}
                                             </div>
