@@ -87,13 +87,6 @@
                 </button>
             </div>
 
-            <div class="px-4 pt-2">
-                <button onclick="selectAIAssistant(); toggleMobileSidebar(true);" id="ai-assistant-btn" class="w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover">
-                    <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i>
-                    <span>AI Task Assistant</span>
-                </button>
-            </div>
-
             <div class="px-4 pt-4 pb-2">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-textSecondary px-1">Projects</span>
             </div>
@@ -131,11 +124,6 @@
                     <button onclick="toggleProjectPerformance()" id="project-perf-toggle-btn" class="bg-slate-100 border border-borderSubtle hover:bg-slate-200 text-textPrimary rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all hidden anim-icon-hover">
                         <i class="fa-solid fa-chart-pie text-violet-500 text-[11px]"></i>
                         <span id="perf-toggle-text" class="hidden sm:inline">Project Performance</span>
-                    </button>
-
-                    <button onclick="openAIBrainstormModal()" id="ai-brainstorm-header-btn" class="bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-600 rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all hidden anim-icon-hover">
-                        <i class="fa-solid fa-wand-magic-sparkles text-purple-500 text-[11px]"></i>
-                        <span class="hidden sm:inline">AI Brainstorm</span>
                     </button>
 
                     <div class="relative hidden lg:block" id="search-container">
@@ -214,50 +202,6 @@
         <span id="toast-text">Action completed successfully</span>
     </div>
 
-    <!-- AI TASK ASSISTANT MODAL -->
-    <div id="ai-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs hidden opacity-0 transition-opacity duration-200 p-4">
-        <div class="bg-cardBg border border-borderSubtle w-full max-w-lg rounded-2xl p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="ai-modal-box">
-            <div class="flex items-center justify-between pb-3 border-b border-borderSubtle mb-4">
-                <h3 class="font-bold text-sm text-accentDark flex items-center space-x-2">
-                    <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i>
-                    <span>Gemini AI Task Breakdown</span>
-                </h3>
-                <button onclick="closeAIModal()" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[11px] font-semibold text-textSecondary uppercase tracking-wider mb-1">What goal or project task do you want to plan?</label>
-                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <input type="text" id="ai-prompt-input" placeholder="e.g., Launch a mobile marketing campaign in 2 weeks" class="flex-1 bg-canvasBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500">
-                        <button onclick="generateAITasks()" id="ai-generate-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center space-x-1.5 transition-all anim-bounce-hover">
-                            <i class="fa-solid fa-sparkles text-amber-300"></i>
-                            <span>Generate</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="ai-loading" class="hidden py-8 text-center space-y-2">
-                    <i class="fa-solid fa-spinner text-2xl text-purple-500 animate-spin"></i>
-                    <p class="text-xs text-textSecondary">Gemini is structuring your task roadmap...</p>
-                </div>
-
-                <div id="ai-result-container" class="hidden space-y-3">
-                    <p class="text-xs font-bold text-accentDark">Suggested Subtasks (Select to Add):</p>
-                    <div id="ai-tasks-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                        <!-- Populated by AI -->
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center justify-end space-x-2 pt-4 border-t border-borderSubtle mt-4">
-                <button type="button" onclick="closeAIModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Close</button>
-                <button type="button" onclick="addSelectedAITasks()" id="ai-add-selected-btn" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white anim-bounce-hover flex items-center space-x-1.5 hidden">
-                    <i class="fa-solid fa-plus text-emerald-400"></i>
-                    <span>Add Selected Tasks</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         let projects = JSON.parse(localStorage.getItem('orbit_pure_projects')) || [];
@@ -266,7 +210,6 @@
         let selectedProjectId = null;
         let isGlobalPerfActive = false;
         let isProjectPerfActive = false;
-        let isAIAssistantActive = false;
         let editingTaskId = null;
         let projectModalMode = 'add';
         let now = new Date();
@@ -274,7 +217,6 @@
         let currentMonth = now.getMonth();
         let selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         let searchQuery = '';
-        let generatedAiTasksCache = [];
 
         function saveData() {
             localStorage.setItem('orbit_pure_projects', JSON.stringify(projects));
@@ -303,359 +245,15 @@
             }
         }
 
-        function selectAIAssistant() {
-            isAIAssistantActive = true;
-            isGlobalPerfActive = false;
-            isProjectPerfActive = false;
-            selectedProjectId = null;
-            renderProjectsSidebar();
-
-            document.getElementById('active-project-title').innerText = 'AI Task Assistant';
-            document.getElementById('active-project-subtitle').innerText = 'Powered by Gemini AI';
-            document.getElementById('edit-project-btn').classList.add('hidden');
-            document.getElementById('project-perf-toggle-btn').classList.add('hidden');
-            document.getElementById('ai-brainstorm-header-btn').classList.add('hidden');
-            document.getElementById('add-task-header-btn').classList.add('hidden');
-            document.getElementById('search-container').classList.add('hidden');
-
-            renderAIAssistantView();
-        }
-
-        function renderAIAssistantView() {
-            const workspace = document.getElementById('workspace-body');
-            workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-3xl mx-auto w-full";
-
-            workspace.innerHTML = `
-                <div class="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-sky-500/10 border border-purple-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg shadow-md shrink-0">
-                            <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-sm text-accentDark">Gemini Productivity Strategist</h3>
-                            <p class="text-xs text-textSecondary">Enter any project goal to generate an actionable breakdown.</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pt-2">
-                        <input type="text" id="ai-main-prompt" placeholder="e.g., Redesign company e-commerce flow in 10 days" class="flex-1 bg-white border border-borderSubtle rounded-xl px-4 py-3 text-xs text-textPrimary focus:outline-none focus:border-purple-500 shadow-2xs">
-                        <button onclick="generateMainAITasks()" id="ai-main-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl text-xs font-medium flex items-center justify-center space-x-2 shadow-sm transition-all anim-bounce-hover">
-                            <i class="fa-solid fa-sparkles text-amber-300"></i>
-                            <span>Generate Roadmap</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="ai-main-loading" class="hidden py-12 text-center space-y-3">
-                    <i class="fa-solid fa-spinner text-3xl text-purple-500 animate-spin"></i>
-                    <p class="text-xs font-semibold text-textSecondary">Gemini is analyzing and crafting your smart task list...</p>
-                </div>
-
-                <div id="ai-main-results" class="hidden space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                        <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-1.5"><i class="fa-solid fa-list-check text-purple-500"></i><span>Generated Action Plan</span></h4>
-                        <div class="flex items-center space-x-2">
-                            <select id="ai-target-project" class="bg-canvasBg border border-borderSubtle rounded-xl px-3 py-1.5 text-xs text-textPrimary focus:outline-none">
-                                ${projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
-                            </select>
-                            <button onclick="addAllMainAITasks()" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shadow-2xs anim-bounce-hover flex items-center space-x-1.5">
-                                <i class="fa-solid fa-plus text-emerald-400"></i>
-                                <span>Add All</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="ai-main-tasks-list" class="space-y-2.5">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-            `;
-        }
-
-        async function generateMainAITasks() {
-            const promptInput = document.getElementById('ai-main-prompt');
-            const prompt = promptInput.value.trim();
-            if (!prompt) {
-                showToast('Please enter a goal or objective');
-                return;
-            }
-
-            if (projects.length === 0) {
-                showToast('Please create a project first before generating AI tasks');
-                return;
-            }
-
-            const loadingEl = document.getElementById('ai-main-loading');
-            const resultsEl = document.getElementById('ai-main-results');
-            const listEl = document.getElementById('ai-main-tasks-list');
-            const btnEl = document.getElementById('ai-main-btn');
-
-            loadingEl.classList.remove('hidden');
-            resultsEl.classList.add('hidden');
-            btnEl.disabled = true;
-
-            try {
-                const systemPrompt = "Act as an expert project manager and productivity coach. Given a goal, provide a structured list of 5 to 8 practical subtasks. You must respond strictly in JSON format as an array of objects, where each object has 'title' (string) and 'description' (string).";
-                const userQuery = `Break down this goal into actionable tasks: ${prompt}`;
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: userQuery }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "ARRAY",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    title: { type: "STRING" },
-                                    description: { type: "STRING" }
-                                },
-                                propertyOrdering: ["title", "description"]
-                            }
-                        }
-                    }
-                };
-
-                let response = null;
-                for (let attempt = 0; attempt < 3; attempt++) {
-                    try {
-                        response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (response.ok) break;
-                    } catch (e) {
-                        if (attempt === 2) throw e;
-                        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
-                    }
-                }
-
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    const parsed = JSON.parse(candidate.content.parts[0].text);
-                    generatedAiTasksCache = parsed;
-
-                    listEl.innerHTML = parsed.map((item, idx) => `
-                        <div class="bg-cardBg border border-borderSubtle rounded-xl p-4 flex items-start justify-between shadow-2xs">
-                            <div class="space-y-1 pr-2">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">Task ${idx + 1}</span>
-                                <h5 class="text-xs font-bold text-accentDark">${escapeHtml(item.title)}</h5>
-                                <p class="text-[11px] text-textSecondary">${escapeHtml(item.description)}</p>
-                            </div>
-                            <button onclick="addSingleAITask(${idx})" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-xs text-emerald-600 anim-icon-hover shrink-0" title="Add Task">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    `).join('');
-
-                    loadingEl.classList.add('hidden');
-                    resultsEl.classList.remove('hidden');
-                } else {
-                    throw new Error('Invalid response structure');
-                }
-            } catch (error) {
-                console.error(error);
-                showToast('Failed to generate AI tasks. Please try again.');
-                loadingEl.classList.add('hidden');
-            } finally {
-                btnEl.disabled = false;
-            }
-        }
-
-        function addSingleAITask(idx) {
-            const item = generatedAiTasksCache[idx];
-            const targetProjId = document.getElementById('ai-target-project').value;
-            if (!item || !targetProjId) return;
-
-            const newTask = {
-                id: 't-' + Date.now() + '-' + Math.floor(Math.random()*1000),
-                title: item.title,
-                description: item.description,
-                project: targetProjId,
-                dueDate: selectedCalendarDate,
-                completed: false
-            };
-            tasks.unshift(newTask);
-            saveData();
-            showToast(`Added "${item.title}" to project`);
-        }
-
-        function addAllMainAITasks() {
-            const targetProjId = document.getElementById('ai-target-project').value;
-            if (!targetProjId || generatedAiTasksCache.length === 0) return;
-
-            generatedAiTasksCache.forEach(item => {
-                const newTask = {
-                    id: 't-' + Date.now() + '-' + Math.floor(Math.random()*1000),
-                    title: item.title,
-                    description: item.description,
-                    project: targetProjId,
-                    dueDate: selectedCalendarDate,
-                    completed: false
-                };
-                tasks.unshift(newTask);
-            });
-            saveData();
-            showToast('All AI generated tasks added successfully!');
-        }
-
-        function openAIBrainstormModal() {
-            if (!selectedProjectId) return;
-            const modal = document.getElementById('ai-modal');
-            const box = document.getElementById('ai-modal-box');
-            document.getElementById('ai-prompt-input').value = '';
-            document.getElementById('ai-loading').classList.add('hidden');
-            document.getElementById('ai-result-container').classList.add('hidden');
-            document.getElementById('ai-add-selected-btn').classList.add('hidden');
-
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                box.classList.remove('scale-95');
-                box.classList.add('scale-100');
-            }, 10);
-        }
-
-        function closeAIModal() {
-            const modal = document.getElementById('ai-modal');
-            const box = document.getElementById('ai-modal-box');
-            modal.classList.add('opacity-0');
-            box.classList.remove('scale-100');
-            box.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 200);
-        }
-
-        async function generateAITasks() {
-            const promptInput = document.getElementById('ai-prompt-input');
-            const prompt = promptInput.value.trim();
-            if (!prompt) {
-                showToast('Please enter a goal or prompt');
-                return;
-            }
-
-            const loadingEl = document.getElementById('ai-loading');
-            const resultContainer = document.getElementById('ai-result-container');
-            const listEl = document.getElementById('ai-tasks-list');
-            const addBtn = document.getElementById('ai-add-selected-btn');
-
-            loadingEl.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
-
-            try {
-                const systemPrompt = "Act as an expert project manager. Provide 4-6 concise subtasks for the given goal in JSON format as an array of objects with 'title' and 'description'.";
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "ARRAY",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    title: { type: "STRING" },
-                                    description: { type: "STRING" }
-                                },
-                                propertyOrdering: ["title", "description"]
-                            }
-                        }
-                    }
-                };
-
-                let response = null;
-                for (let attempt = 0; attempt < 3; attempt++) {
-                    try {
-                        response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (response.ok) break;
-                    } catch (e) {
-                        if (attempt === 2) throw e;
-                        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
-                    }
-                }
-
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    const parsed = JSON.parse(candidate.content.parts[0].text);
-                    generatedAiTasksCache = parsed;
-
-                    listEl.innerHTML = parsed.map((item, idx) => `
-                        <label class="flex items-start space-x-3 p-3 rounded-xl bg-canvasBg border border-borderSubtle hover:border-indigo-300 cursor-pointer transition-all">
-                            <input type="checkbox" value="${idx}" class="ai-task-checkbox mt-0.5 rounded text-indigo-600 focus:ring-0">
-                            <div>
-                                <p class="text-xs font-bold text-accentDark">${escapeHtml(item.title)}</p>
-                                <p class="text-[11px] text-textSecondary">${escapeHtml(item.description)}</p>
-                            </div>
-                        </label>
-                    `).join('');
-
-                    loadingEl.classList.add('hidden');
-                    resultContainer.classList.remove('hidden');
-                    addBtn.classList.remove('hidden');
-                } else {
-                    throw new Error('Invalid response');
-                }
-            } catch (err) {
-                console.error(err);
-                showToast('Failed to generate AI tasks');
-                loadingEl.classList.add('hidden');
-            }
-        }
-
-        function addSelectedAITasks() {
-            const checkboxes = document.querySelectorAll('.ai-task-checkbox:checked');
-            if (checkboxes.length === 0) {
-                showToast('Please select at least one task');
-                return;
-            }
-
-            checkboxes.forEach(cb => {
-                const idx = parseInt(cb.value);
-                const item = generatedAiTasksCache[idx];
-                if (item) {
-                    const newTask = {
-                        id: 't-' + Date.now() + '-' + Math.floor(Math.random()*1000),
-                        title: item.title,
-                        description: item.description,
-                        project: selectedProjectId,
-                        dueDate: selectedCalendarDate,
-                        completed: false
-                    };
-                    tasks.unshift(newTask);
-                }
-            });
-
-            saveData();
-            closeAIModal();
-            showToast('Selected AI tasks added successfully');
-        }
-
         function renderProjectsSidebar() {
             const listEl = document.getElementById('projects-sidebar-list');
             const globalBtn = document.getElementById('global-perf-btn');
-            const aiBtn = document.getElementById('ai-assistant-btn');
             if (!listEl) return;
 
             if (isGlobalPerfActive) {
                 globalBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-slate-900 text-white shadow-2xs transition-all anim-icon-hover";
             } else {
                 globalBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover";
-            }
-
-            if (isAIAssistantActive) {
-                aiBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-slate-900 text-white shadow-2xs transition-all anim-icon-hover";
-            } else {
-                aiBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover";
             }
 
             if (projects.length === 0) {
@@ -669,7 +267,7 @@
 
             listEl.innerHTML = projects.map(proj => {
                 const count = tasks.filter(t => t.project === proj.id && !t.completed).length;
-                const isSelected = !isGlobalPerfActive && !isAIAssistantActive && selectedProjectId === proj.id;
+                const isSelected = !isGlobalPerfActive && selectedProjectId === proj.id;
                 return `
                     <div class="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${isSelected ? 'bg-slate-900 text-white shadow-2xs' : 'text-textPrimary hover:bg-slate-100'}">
                         <button onclick="selectProject('${proj.id}'); toggleMobileSidebar(true);" class="flex-1 flex items-center space-x-2.5 text-left anim-icon-hover truncate">
@@ -694,12 +292,10 @@
             selectedProjectId = id;
             isGlobalPerfActive = false;
             isProjectPerfActive = false;
-            isAIAssistantActive = false;
             renderProjectsSidebar();
 
             document.getElementById('edit-project-btn').classList.remove('hidden');
             document.getElementById('project-perf-toggle-btn').classList.remove('hidden');
-            document.getElementById('ai-brainstorm-header-btn').classList.remove('hidden');
             document.getElementById('add-task-header-btn').classList.remove('hidden');
             document.getElementById('search-container').classList.remove('hidden');
 
@@ -709,7 +305,6 @@
         function selectGlobalPerformance() {
             isGlobalPerfActive = true;
             isProjectPerfActive = false;
-            isAIAssistantActive = false;
             selectedProjectId = null;
             renderProjectsSidebar();
 
@@ -717,7 +312,6 @@
             document.getElementById('active-project-subtitle').innerText = 'Overview across projects';
             document.getElementById('edit-project-btn').classList.add('hidden');
             document.getElementById('project-perf-toggle-btn').classList.add('hidden');
-            document.getElementById('ai-brainstorm-header-btn').classList.add('hidden');
             document.getElementById('add-task-header-btn').classList.add('hidden');
             document.getElementById('search-container').classList.add('hidden');
 
@@ -877,7 +471,6 @@
                     document.getElementById('active-project-subtitle').innerText = 'Create or select a project';
                     document.getElementById('edit-project-btn').classList.add('hidden');
                     document.getElementById('project-perf-toggle-btn').classList.add('hidden');
-                    document.getElementById('ai-brainstorm-header-btn').classList.add('hidden');
                     document.getElementById('add-task-header-btn').classList.add('hidden');
                     document.getElementById('workspace-body').innerHTML = `
                         <i class="fa-regular fa-folder-open text-4xl mb-3 text-amber-500 animate-pulse"></i>
