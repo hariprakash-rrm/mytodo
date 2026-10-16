@@ -729,30 +729,30 @@
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center space-x-2 min-w-0">
                             <i class="fa-regular fa-calendar text-rose-500 shrink-0"></i>
-                            <span class="font-bold text-xs text-accentDark truncate">Calendar (${currentMonthName} ${currentYear})</span>
+                            <span class="font-bold text-xs text-accentDark truncate">${currentMonthName} ${currentYear}</span>
                         </div>
                         <div class="flex items-center space-x-2">
                             <button onclick="toggleCalendarExpand()" class="bg-slate-100 hover:bg-slate-200 text-textPrimary px-3 py-1.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover">
                                 <i class="fa-solid ${isCalendarExpanded ? 'fa-chevron-up text-amber-500' : 'fa-chevron-down text-indigo-500'}"></i>
-                                <span>${isCalendarExpanded ? 'Close Calendar' : 'Expand Calendar'}</span>
+                                <span>${isCalendarExpanded ? 'Close' : 'Expand'}</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="${isCalendarExpanded ? 'block' : 'hidden'} space-y-3 pt-3 border-t border-borderSubtle transition-all">
+                    <div class="${isCalendarExpanded ? 'block' : 'hidden'} space-y-2.5 pt-3 border-t border-borderSubtle transition-all">
                         <div class="flex items-center justify-between px-1">
                             <div class="flex items-center space-x-1">
-                                <button onclick="changeYear(-1)" class="w-7 h-7 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Year"><i class="fa-solid fa-angles-left text-indigo-500"></i></button>
-                                <button onclick="changeYear(1)" class="w-7 h-7 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Year"><i class="fa-solid fa-angles-right text-indigo-500"></i></button>
+                                <button onclick="changeYear(-1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Year"><i class="fa-solid fa-angles-left text-indigo-500"></i></button>
+                                <button onclick="changeYear(1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Year"><i class="fa-solid fa-angles-right text-indigo-500"></i></button>
                             </div>
                             <span class="text-xs font-bold text-accentDark">${currentMonthName} ${currentYear}</span>
-                            <div class="flex items-center space-x-1.5">
-                                <button onclick="changeMonth(-1)" class="w-7 h-7 rounded-lg bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Month"><i class="fa-solid fa-chevron-left text-indigo-500"></i></button>
-                                <button onclick="changeMonth(1)" class="w-7 h-7 rounded-lg bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Month"><i class="fa-solid fa-chevron-right text-indigo-500"></i></button>
+                            <div class="flex items-center space-x-1">
+                                <button onclick="changeMonth(-1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Month"><i class="fa-solid fa-chevron-left text-indigo-500"></i></button>
+                                <button onclick="changeMonth(1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Month"><i class="fa-solid fa-chevron-right text-indigo-500"></i></button>
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-7 gap-1 md:gap-1.5 text-center text-[11px] w-full max-w-md mx-auto">
+                        <div class="grid grid-cols-7 gap-1 text-center text-[10px] md:text-[11px] w-full max-w-sm mx-auto">
                             <span class="font-bold text-textSecondary py-1">Mo</span>
                             <span class="font-bold text-textSecondary py-1">Tu</span>
                             <span class="font-bold text-textSecondary py-1">We</span>
@@ -778,9 +778,9 @@
                 const hasTask = tasks.some(t => t.project === selectedProjectId && t.dueDate === dateKey && !t.completed);
 
                 html += `
-                    <div onclick="selectCalendarDate('${dateKey}')" class="h-9 md:h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer border transition-all ${isSelected ? 'bg-slate-900 text-white border-slate-900 font-bold shadow-2xs scale-105' : 'bg-canvasBg border-borderSubtle hover:border-indigo-300 text-textPrimary hover:scale-105'}">
-                        <span class="text-[11px] md:text-xs leading-none">${day}</span>
-                        <span class="w-1.5 h-1.5 rounded-full mt-1 ${hasTask ? (isSelected ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-transparent'}"></span>
+                    <div onclick="selectCalendarDate('${dateKey}')" class="h-8 md:h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer border transition-all ${isSelected ? 'bg-slate-900 text-white border-slate-900 font-bold shadow-2xs scale-105' : 'bg-canvasBg border-borderSubtle hover:border-indigo-300 text-textPrimary hover:scale-105'}">
+                        <span class="text-[10px] md:text-xs leading-none">${day}</span>
+                        <span class="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full mt-1 ${hasTask ? (isSelected ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-transparent'}"></span>
                     </div>
                 `;
             }
