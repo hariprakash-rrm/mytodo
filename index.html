@@ -218,10 +218,19 @@
         let selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         let searchQuery = '';
 
-        function saveData() {
+        function saveDataAndRefresh() {
             localStorage.setItem('orbit_pure_projects', JSON.stringify(projects));
             localStorage.setItem('orbit_pure_tasks', JSON.stringify(tasks));
             renderProjectsSidebar();
+            if (isGlobalPerfActive) {
+                renderGlobalPerformanceView();
+            } else if (selectedProjectId) {
+                if (isProjectPerfActive) {
+                    renderProjectPerformanceView();
+                } else {
+                    renderProjectWorkspace();
+                }
+            }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -276,10 +285,10 @@
                         </button>
                         <div class="flex items-center space-x-1.5 shrink-0" onclick="event.stopPropagation()">
                             <span class="text-[11px] px-2 py-0.5 rounded-md ${isSelected ? 'bg-white/20 text-white font-bold' : 'bg-slate-100 text-sky-600'}">${count > 0 ? count : ''}</span>
-                            <button onclick="openProjectModal('edit'); event.stopPropagation();" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Rename Project">
+                            <button onclick="openProjectModal('edit', '${proj.id}'); event.stopPropagation();" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Rename Project">
                                 <i class="fa-regular fa-pen-to-square text-[11px] text-amber-500"></i>
                             </button>
-                            <button onclick="deleteProject('${proj.id}')" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Delete Project">
+                            <button onclick="deleteProject('${proj.id}'); event.stopPropagation();" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Delete Project">
                                 <i class="fa-regular fa-trash-can text-[11px] text-rose-500"></i>
                             </button>
                         </div>
@@ -298,6 +307,7 @@
             document.getElementById('project-perf-toggle-btn').classList.remove('hidden');
             document.getElementById('add-task-header-btn').classList.remove('hidden');
             document.getElementById('search-container').classList.remove('hidden');
+            document.getElementById('perf-toggle-text').innerText = 'Project Performance';
 
             renderProjectWorkspace();
         }
@@ -478,7 +488,7 @@
                     `;
                 }
             }
-            saveData();
+            saveDataAndRefresh();
             showToast('Project deleted successfully');
         }
 
@@ -654,7 +664,7 @@
             const task = tasks.find(t => t.id === id);
             if (task) {
                 task.completed = !task.completed;
-                saveData();
+                saveDataAndRefresh();
                 showToast(task.completed ? 'Task completed' : 'Task restored');
             }
         }
@@ -662,7 +672,7 @@
         function deleteTask(id) {
             if (!confirm('Are you sure you want to delete this task?')) return;
             tasks = tasks.filter(t => t.id !== id);
-            saveData();
+            saveDataAndRefresh();
             showToast('Task deleted');
         }
 
@@ -737,12 +747,15 @@
                 showToast('Task added successfully');
             }
 
-            saveData();
+            saveDataAndRefresh();
             closeTaskModal();
         }
 
-        function openProjectModal(mode) {
+        function openProjectModal(mode, projId = null) {
             projectModalMode = mode;
+            if (projId && mode === 'edit') {
+                selectedProjectId = projId;
+            }
             const modal = document.getElementById('project-modal');
             const box = document.getElementById('project-modal-box');
             const titleEl = document.getElementById('project-modal-title');
@@ -789,11 +802,14 @@
             } else {
                 const newProj = { id: 'proj-' + Date.now(), name };
                 projects.push(newProj);
-                selectProject(newProj.id);
+                selectedProjectId = newProj.id;
                 showToast('Project created successfully');
             }
 
-            saveData();
+            saveDataAndRefresh();
+            if (!isGlobalPerfActive && selectedProjectId) {
+                selectProject(selectedProjectId);
+            }
             closeProjectModal();
         }
 
