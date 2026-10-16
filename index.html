@@ -247,6 +247,7 @@
         let selectedProjectId = null;
         let isGlobalPerfActive = false;
         let isProjectPerfActive = false;
+        let isCalendarExpanded = false; // Default is closed/collapsed
         let editingTaskId = null;
         let projectModalMode = 'add';
         let now = new Date();
@@ -635,6 +636,11 @@
             renderProjectWorkspace();
         }
 
+        function toggleCalendarExpand() {
+            isCalendarExpanded = !isCalendarExpanded;
+            renderProjectWorkspace();
+        }
+
         function renderProjectWorkspace() {
             const proj = projects.find(p => p.id === selectedProjectId);
             if (!proj) return;
@@ -649,25 +655,38 @@
             const currentMonthName = monthNames[currentMonth];
 
             let html = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-                    <!-- COLUMN 1 & 2: Compact Classic Calendar View -->
-                    <div class="md:col-span-2 bg-cardBg border border-borderSubtle rounded-2xl p-4 shadow-2xs space-y-3">
+                <!-- CALENDAR TOGGLE BAR -->
+                <div class="bg-cardBg border border-borderSubtle rounded-2xl p-4 shadow-2xs space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-regular fa-calendar text-rose-500"></i>
+                            <span class="font-bold text-xs text-accentDark">Calendar Schedule (${currentMonthName} ${currentYear})</span>
+                            <span class="text-[10px] bg-canvasBg border border-borderSubtle px-2 py-0.5 rounded text-textSecondary">Active: ${selectedCalendarDate}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleCalendarExpand()" class="bg-slate-100 hover:bg-slate-200 text-textPrimary px-3 py-1.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover">
+                                <i class="fa-solid ${isCalendarExpanded ? 'fa-chevron-up text-amber-500' : 'fa-chevron-down text-indigo-500'}"></i>
+                                <span>${isCalendarExpanded ? 'Close Calendar' : 'Expand Calendar'}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- EXPANDABLE CALENDAR GRID -->
+                    <div class="${isCalendarExpanded ? 'block' : 'hidden'} space-y-3 pt-3 border-t border-borderSubtle transition-all">
                         <div class="flex items-center justify-between px-1">
-                            <div class="flex items-center space-x-2">
-                                <h3 class="font-bold text-xs text-accentDark flex items-center space-x-1.5"><i class="fa-regular fa-calendar text-rose-500"></i><span>${currentMonthName} ${currentYear}</span></h3>
-                                <div class="flex items-center space-x-1">
-                                    <button onclick="changeYear(-1)" class="w-5 h-5 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[9px] anim-icon-hover" title="Previous Year"><i class="fa-solid fa-angles-left text-indigo-500"></i></button>
-                                    <button onclick="changeYear(1)" class="w-5 h-5 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[9px] anim-icon-hover" title="Next Year"><i class="fa-solid fa-angles-right text-indigo-500"></i></button>
-                                </div>
+                            <div class="flex items-center space-x-1">
+                                <button onclick="changeYear(-1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Year"><i class="fa-solid fa-angles-left text-indigo-500"></i></button>
+                                <button onclick="changeYear(1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Year"><i class="fa-solid fa-angles-right text-indigo-500"></i></button>
                             </div>
+                            <span class="text-xs font-bold text-accentDark">${currentMonthName} ${currentYear}</span>
                             <div class="flex items-center space-x-1.5">
                                 <button onclick="changeMonth(-1)" class="w-6 h-6 rounded-lg bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Month"><i class="fa-solid fa-chevron-left text-indigo-500"></i></button>
                                 <button onclick="changeMonth(1)" class="w-6 h-6 rounded-lg bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Month"><i class="fa-solid fa-chevron-right text-indigo-500"></i></button>
                             </div>
                         </div>
                         
-                        <!-- Calendar Grid - Compact sizing -->
-                        <div class="grid grid-cols-7 gap-1.5 text-center text-[11px]">
+                        <!-- Calendar Grid -->
+                        <div class="grid grid-cols-7 gap-1.5 text-center text-[11px] max-w-md mx-auto">
                             <span class="font-bold text-textSecondary py-0.5">Mo</span>
                             <span class="font-bold text-textSecondary py-0.5">Tu</span>
                             <span class="font-bold text-textSecondary py-0.5">We</span>
@@ -693,9 +712,9 @@
                 const hasTask = tasks.some(t => t.project === selectedProjectId && t.dueDate === dateKey && !t.completed);
 
                 html += `
-                    <div onclick="selectCalendarDate('${dateKey}')" class="h-8 rounded-lg flex flex-col items-center justify-center cursor-pointer border transition-all ${isSelected ? 'bg-slate-900 text-white border-slate-900 font-bold shadow-2xs scale-105' : 'bg-canvasBg border-borderSubtle hover:border-indigo-300 text-textPrimary hover:scale-105'}">
+                    <div onclick="selectCalendarDate('${dateKey}')" class="h-9 rounded-lg flex flex-col items-center justify-center cursor-pointer border transition-all ${isSelected ? 'bg-slate-900 text-white border-slate-900 font-bold shadow-2xs scale-105' : 'bg-canvasBg border-borderSubtle hover:border-indigo-300 text-textPrimary hover:scale-105'}">
                         <span class="text-[11px] leading-none">${day}</span>
-                        <span class="w-1 h-1 rounded-full mt-0.5 ${hasTask ? (isSelected ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-transparent'}"></span>
+                        <span class="w-1 h-1 rounded-full mt-1 ${hasTask ? (isSelected ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-transparent'}"></span>
                     </div>
                 `;
             }
@@ -703,29 +722,19 @@
             html += `
                         </div>
                     </div>
-
-                    <!-- COLUMN 3: Task Summary & Quick Actions -->
-                    <div class="bg-cardBg border border-borderSubtle rounded-2xl p-4 shadow-2xs flex flex-col justify-between space-y-3">
-                        <div>
-                            <h3 class="font-bold text-xs text-accentDark mb-1 flex items-center space-x-1.5"><i class="fa-solid fa-circle-info text-sky-500"></i><span>Project Overview</span></h3>
-                            <p class="text-[11px] text-textSecondary mb-3">Quick summary for ${escapeHtml(proj.name)}</p>
-                            <div class="space-y-1.5 text-[11px]">
-                                <div class="flex justify-between py-1 border-b border-borderSubtle"><span class="text-textSecondary">Total Tasks:</span><span class="font-bold text-accentDark">${tasks.filter(t => t.project === selectedProjectId).length}</span></div>
-                                <div class="flex justify-between py-1 border-b border-borderSubtle"><span class="text-textSecondary">Active Date:</span><span class="font-bold text-accentDark">${selectedCalendarDate}</span></div>
-                            </div>
-                        </div>
-                        <button onclick="openTaskModal('add')" class="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-2 text-xs font-medium shadow-2xs transition-all anim-bounce-hover flex items-center justify-center space-x-1.5">
-                            <i class="fa-solid fa-plus text-[10px] text-emerald-400"></i>
-                            <span>Add Task</span>
-                        </button>
-                    </div>
                 </div>
 
                 <!-- RESPECTIVE TASKS LIST FOR SELECTED DATE -->
                 <div class="space-y-2.5 pt-3 border-t border-borderSubtle">
                     <div class="flex items-center justify-between">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
-                        <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
+                            <button onclick="openTaskModal('add')" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1 rounded-lg text-xs font-medium flex items-center space-x-1 shadow-2xs anim-bounce-hover">
+                                <i class="fa-solid fa-plus text-[10px] text-emerald-400"></i>
+                                <span>Add Task</span>
+                            </button>
+                        </div>
                     </div>
                     <div id="project-tasks-list" class="space-y-2">
                         <!-- Injected via JS -->
