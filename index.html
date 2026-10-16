@@ -768,7 +768,36 @@
             const currentMonthName = monthNames[currentMonth];
 
             let html = `
-                <div class="bg-cardBg border border-borderSubtle rounded-2xl p-3 md:p-4 shadow-2xs space-y-3">
+                <!-- 1. OVERDUE CARRIED TASKS SECTION (TOP PROMINENT) -->
+                <div id="overdue-carried-section" class="space-y-2"></div>
+
+                <!-- 2. TODAY'S TASKS SECTION -->
+                <div class="space-y-2.5 pt-2 border-t border-borderSubtle">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
+                        <div class="flex items-center space-x-2 flex-wrap">
+                            <!-- Status Filter Dropdown -->
+                            <select id="task-status-filter" onchange="updateTaskStatusFilter(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="all" ${taskStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
+                                <option value="todo" ${taskStatusFilter === 'todo' ? 'selected' : ''}>To Do</option>
+                                <option value="in_progress" ${taskStatusFilter === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="done" ${taskStatusFilter === 'done' ? 'selected' : ''}>Done</option>
+                            </select>
+
+                            <!-- Date Sort Dropdown -->
+                            <select id="task-date-sort" onchange="updateTaskDateSort(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="asc" ${taskDateSort === 'asc' ? 'selected' : ''}>Date: Asc (Oldest)</option>
+                                <option value="desc" ${taskDateSort === 'desc' ? 'selected' : ''}>Date: Desc (Newest)</option>
+                            </select>
+
+                            <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
+                        </div>
+                    </div>
+                    <div id="project-tasks-list" class="space-y-2"></div>
+                </div>
+
+                <!-- 3. COLLAPSIBLE CALENDAR SECTION (BOTTOM) -->
+                <div class="bg-cardBg border border-borderSubtle rounded-2xl p-3 md:p-4 shadow-2xs space-y-3 pt-3">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center space-x-2 min-w-0">
                             <i class="fa-regular fa-calendar text-rose-500 shrink-0"></i>
@@ -832,34 +861,72 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="space-y-2.5 pt-2 border-t border-borderSubtle">
-                    <div class="flex items-center justify-between flex-wrap gap-2">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
-                        <div class="flex items-center space-x-2 flex-wrap">
-                            <!-- Status Filter Dropdown -->
-                            <select id="task-status-filter" onchange="updateTaskStatusFilter(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="all" ${taskStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
-                                <option value="todo" ${taskStatusFilter === 'todo' ? 'selected' : ''}>To Do</option>
-                                <option value="in_progress" ${taskStatusFilter === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                <option value="done" ${taskStatusFilter === 'done' ? 'selected' : ''}>Done</option>
-                            </select>
-
-                            <!-- Date Sort Dropdown -->
-                            <select id="task-date-sort" onchange="updateTaskDateSort(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="asc" ${taskDateSort === 'asc' ? 'selected' : ''}>Date: Asc (Oldest)</option>
-                                <option value="desc" ${taskDateSort === 'desc' ? 'selected' : ''}>Date: Desc (Newest)</option>
-                            </select>
-
-                            <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
-                        </div>
-                    </div>
-                    <div id="project-tasks-list" class="space-y-2"></div>
-                </div>
             `;
 
             workspace.innerHTML = html;
+            renderOverdueCarriedSection();
             renderProjectTasksForDate();
+        }
+
+        function renderOverdueCarriedSection() {
+            const container = document.getElementById('overdue-carried-section');
+            if (!container) return;
+
+            const overdueTasks = tasks.filter(t => t.project === selectedProjectId && t.isOverdueCarried && !t.completed && t.status !== 'done');
+
+            if (overdueTasks.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="bg-rose-50 border border-rose-300 rounded-2xl p-4 shadow-sm space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-rose-700 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                            <span>Overdue Carried Tasks (${overdueTasks.length})</span>
+                        </h4>
+                        <span class="text-[10px] font-semibold bg-rose-200 text-rose-800 px-2 py-0.5 rounded-md">Action Required</span>
+                    </div>
+                    <div class="space-y-2">
+                        ${overdueTasks.map(task => {
+                            const taskId = task.id;
+                            const isDone = task.completed || task.status === 'done';
+                            const currentStatus = task.status || 'todo';
+                            let dropdownColorClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                            if (currentStatus === 'done') dropdownColorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                            else if (currentStatus === 'in_progress') dropdownColorClass = 'bg-amber-50 text-amber-700 border-amber-200';
+
+                            return `
+                                <div class="bg-white border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all">
+                                    <div class="flex items-center space-x-3 pr-2 truncate">
+                                        <button onclick="toggleTaskCompletion('${taskId}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0 transition-transform active:scale-90">
+                                            ${isDone ? '<i class="fa-solid fa-check text-[10px] text-emerald-600"></i>' : ''}
+                                        </button>
+                                        <div class="truncate">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-rose-600 font-bold bg-rose-100 text-[10px] px-1.5 py-0.5 rounded border border-rose-300 shrink-0"><i class="fa-solid fa-triangle-exclamation mr-0.5"></i>Overdue</span>
+                                                <p class="text-xs font-medium text-accentDark truncate ${isDone ? 'line-through text-textSecondary' : ''}">${escapeHtml(task.title)}</p>
+                                                ${task.dueTime ? `<span class="text-[10px] bg-rose-50 text-rose-600 font-semibold px-2 py-0.5 rounded-md shrink-0"><i class="fa-regular fa-clock mr-1"></i>${task.dueTime}</span>` : ''}
+                                            </div>
+                                            ${task.description ? `<p class="text-[11px] text-textSecondary truncate">${escapeHtml(task.description)}</p>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2 shrink-0">
+                                        <select id="status-select-${taskId}" onchange="updateTaskStatusDropdown('${taskId}', this.value)" class="border text-[11px] rounded-lg px-2.5 py-1 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all ${dropdownColorClass}">
+                                            <option value="todo" ${currentStatus === 'todo' ? 'selected' : ''}>To Do</option>
+                                            <option value="in_progress" ${currentStatus === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                            <option value="done" ${currentStatus === 'done' ? 'selected' : ''}>Done</option>
+                                        </select>
+                                        <button onclick="openTaskModal('edit', '${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Edit Task"><i class="fa-regular fa-pen-to-square text-amber-500"></i></button>
+                                        <button onclick="deleteTask('${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Delete Task"><i class="fa-regular fa-trash-can text-rose-500"></i></button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
         }
 
         function selectCalendarDate(dateKey) {
@@ -899,11 +966,9 @@
 
             // Date & Time sort (Ascending vs Descending)
             filtered.sort((a, b) => {
-                // Pinned items always come first
                 if (a.isPinned && !b.isPinned) return -1;
                 if (!a.isPinned && b.isPinned) return 1;
 
-                // If explicit order is set
                 if (a.order !== undefined && b.order !== undefined) {
                     return a.order - b.order;
                 }
@@ -951,7 +1016,7 @@
                          ondrop="handleDrop(event, '${taskId}')" 
                          ondragend="handleDragEnd(event)"
                          id="task-card-${taskId}"
-                         class="bg-cardBg border ${isOverdueCarried ? 'border-rose-400 bg-rose-50/20' : (isPinned ? 'border-amber-400 bg-amber-50/20' : 'border-borderSubtle')} hover:border-indigo-300 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all cursor-grab active:cursor-grabbing">
+                         class="bg-cardBg border ${isPinned ? 'border-amber-400 bg-amber-50/20' : 'border-borderSubtle'} hover:border-indigo-300 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all cursor-grab active:cursor-grabbing">
                         <div class="flex items-center space-x-3 pr-2 truncate">
                             <span class="text-textSecondary hover:text-textPrimary text-xs cursor-grab" title="Drag to reorder"><i class="fa-solid fa-grip-vertical"></i></span>
                             <button onclick="toggleTaskCompletion('${taskId}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0 transition-transform active:scale-90">
@@ -960,7 +1025,6 @@
                             <div class="truncate">
                                 <div class="flex items-center space-x-2">
                                     ${isPinned ? '<i class="fa-solid fa-thumbtack text-amber-500 text-[10px] shrink-0" title="Pinned"></i>' : ''}
-                                    ${isOverdueCarried ? '<span class="text-rose-600 font-bold bg-rose-100 text-[10px] px-1.5 py-0.5 rounded border border-rose-300 shrink-0"><i class="fa-solid fa-triangle-exclamation mr-0.5"></i>Overdue Carried</span>' : ''}
                                     <p class="text-xs font-medium text-textPrimary truncate ${isDone ? 'line-through text-textSecondary' : ''}">${escapeHtml(task.title)}</p>
                                     ${task.dueTime ? `<span class="text-[10px] bg-rose-50 text-rose-600 font-semibold px-2 py-0.5 rounded-md shrink-0"><i class="fa-regular fa-clock mr-1"></i>${task.dueTime}</span>` : ''}
                                 </div>
@@ -1009,7 +1073,6 @@
                 const [movedTask] = tasks.splice(draggedIdx, 1);
                 tasks.splice(targetIdx, 0, movedTask);
                 
-                // Assign explicit order index to persist custom drag arrangement
                 tasks.forEach((t, idx) => {
                     t.order = idx;
                 });
