@@ -50,6 +50,10 @@
             0% { transform: translateY(0); }
             100% { transform: translateY(-3px); }
         }
+        .dragging {
+            opacity: 0.4;
+            border: 2px dashed #6366f1 !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-0 md:p-6 antialiased text-textPrimary">
@@ -267,8 +271,11 @@
         let currentMonth = now.getMonth();
         let selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         let searchQuery = '';
+        let taskStatusFilter = 'all';
+        let taskDateSort = 'asc';
         let triggeredAlarmTaskIds = new Set();
         let continuousAlarmInterval = null;
+        let draggedTaskId = null;
 
         function saveDataAndRefresh() {
             localStorage.setItem('orbit_pure_projects', JSON.stringify(projects));
@@ -282,6 +289,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            checkAndCarryOverOverdueTasks();
             renderProjectsSidebar();
             if (projects.length > 0) {
                 selectProject(projects[0].id);
@@ -291,6 +299,29 @@
             startLiveClock();
             setInterval(checkTaskAlarms, 1000);
         });
+
+        function checkAndCarryOverOverdueTasks() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            let updated = false;
+            tasks.forEach(task => {
+                if (!task.completed && task.status !== 'done') {
+                    if (task.dueDate && task.dueDate < todayStr) {
+                        task.dueDate = todayStr;
+                        task.isOverdueCarried = true;
+                        updated = true;
+                    }
+                }
+            });
+
+            if (updated) {
+                localStorage.setItem('orbit_pure_tasks', JSON.stringify(tasks));
+            }
+        }
 
         function startLiveClock() {
             const clockEl = document.getElementById('live-clock');
@@ -323,6 +354,15 @@
                     }
                 }
             });
+        }
+
+        function toggleTaskPin(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.isPinned = !task.isPinned;
+                saveDataAndRefresh();
+                showToast(task.isPinned ? 'Task pinned to top' : 'Task unpinned');
+            }
         }
 
         function triggerContinuousAlarm(task) {
@@ -494,7 +534,7 @@
             const totalProjects = projects.length;
 
             workspace.innerHTML = `
-                <!-- Projects List section moved to 1st -->
+                <!-- Projects Status Breakdown moved to 1st -->
                 <div class="bg-cardBg border border-borderSubtle rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-2">
@@ -647,7 +687,10 @@
                                         <span class="w-2.5 h-2.5 rounded-full shrink-0 ${dotColor}"></span>
                                         <div class="truncate">
                                             <p class="text-xs font-medium text-accentDark truncate ${isDone ? 'line-through text-textSecondary' : ''}">${escapeHtml(t.title)}</p>
-                                            <p class="text-[10px] text-textSecondary">Due: ${t.dueDate} ${t.dueTime ? 'at ' + t.dueTime : ''}</p>
+                                            <p class="text-[10px] text-textSecondary flex items-center space-x-1.5">
+                                                <span>Due: ${t.dueDate} ${t.dueTime ? 'at ' + t.dueTime : ''}</span>
+                                                ${t.isOverdueCarried ? '<span class="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200"><i class="fa-solid fa-triangle-exclamation mr-0.5"></i>Overdue Carried</span>' : ''}
+                                            </p>
                                         </div>
                                     </div>
                                     <span class="text-[11px] px-2.5 py-1 rounded-md font-semibold shrink-0 ${badgeColor}">
@@ -791,9 +834,23 @@
                 </div>
 
                 <div class="space-y-2.5 pt-2 border-t border-borderSubtle">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2 flex-wrap">
+                            <!-- Status Filter Dropdown -->
+                            <select id="task-status-filter" onchange="updateTaskStatusFilter(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="all" ${taskStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
+                                <option value="todo" ${taskStatusFilter === 'todo' ? 'selected' : ''}>To Do</option>
+                                <option value="in_progress" ${taskStatusFilter === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="done" ${taskStatusFilter === 'done' ? 'selected' : ''}>Done</option>
+                            </select>
+
+                            <!-- Date Sort Dropdown -->
+                            <select id="task-date-sort" onchange="updateTaskDateSort(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="asc" ${taskDateSort === 'asc' ? 'selected' : ''}>Date: Asc (Oldest)</option>
+                                <option value="desc" ${taskDateSort === 'desc' ? 'selected' : ''}>Date: Desc (Newest)</option>
+                            </select>
+
                             <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
                         </div>
                     </div>
@@ -810,32 +867,76 @@
             renderProjectWorkspace();
         }
 
+        function updateTaskStatusFilter(val) {
+            taskStatusFilter = val;
+            renderProjectTasksForDate();
+        }
+
+        function updateTaskDateSort(val) {
+            taskDateSort = val;
+            renderProjectTasksForDate();
+        }
+
         function renderProjectTasksForDate() {
             const listEl = document.getElementById('project-tasks-list');
             const countEl = document.getElementById('date-tasks-count');
             if (!listEl) return;
 
             let filtered = tasks.filter(t => t.project === selectedProjectId && t.dueDate === selectedCalendarDate);
+            
+            // Search filter
             if (searchQuery) {
                 filtered = filtered.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
             }
+
+            // Status filter
+            if (taskStatusFilter !== 'all') {
+                filtered = filtered.filter(t => {
+                    const status = t.status || (t.completed ? 'done' : 'todo');
+                    return status === taskStatusFilter;
+                });
+            }
+
+            // Date & Time sort (Ascending vs Descending)
+            filtered.sort((a, b) => {
+                // Pinned items always come first
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+
+                // If explicit order is set
+                if (a.order !== undefined && b.order !== undefined) {
+                    return a.order - b.order;
+                }
+
+                const timeA = a.dueTime || '00:00';
+                const timeB = b.dueTime || '00:00';
+                const compA = `${a.dueDate} ${timeA}`;
+                const compB = `${b.dueDate} ${timeB}`;
+                if (taskDateSort === 'asc') {
+                    return compA.localeCompare(compB);
+                } else {
+                    return compB.localeCompare(compA);
+                }
+            });
 
             if (countEl) countEl.innerText = `${filtered.length} tasks`;
 
             if (filtered.length === 0) {
                 listEl.innerHTML = `
                     <div class="bg-canvasBg border border-borderSubtle rounded-xl p-5 text-center text-textSecondary text-xs">
-                        No tasks scheduled for ${selectedCalendarDate}.
+                        No tasks match the selected filters for ${selectedCalendarDate}.
                     </div>
                 `;
                 return;
             }
 
-            listEl.innerHTML = filtered.map(task => {
+            listEl.innerHTML = filtered.map((task, index) => {
                 const isDone = task.completed || task.status === 'done';
                 const currentStatus = task.status || (isDone ? 'done' : 'todo');
+                const isPinned = task.isPinned || false;
+                const isOverdueCarried = task.isOverdueCarried || false;
+                const taskId = task.id;
                 
-                // Color mapping for dropdown select based on current status
                 let dropdownColorClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
                 if (currentStatus === 'done') {
                     dropdownColorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -844,13 +945,22 @@
                 }
 
                 return `
-                    <div class="bg-cardBg border border-borderSubtle hover:border-indigo-300 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all anim-icon-hover">
+                    <div draggable="true" 
+                         ondragstart="handleDragStart(event, '${taskId}')" 
+                         ondragover="handleDragOver(event)" 
+                         ondrop="handleDrop(event, '${taskId}')" 
+                         ondragend="handleDragEnd(event)"
+                         id="task-card-${taskId}"
+                         class="bg-cardBg border ${isOverdueCarried ? 'border-rose-400 bg-rose-50/20' : (isPinned ? 'border-amber-400 bg-amber-50/20' : 'border-borderSubtle')} hover:border-indigo-300 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all cursor-grab active:cursor-grabbing">
                         <div class="flex items-center space-x-3 pr-2 truncate">
-                            <button onclick="toggleTaskCompletion('${task.id}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0 transition-transform active:scale-90">
+                            <span class="text-textSecondary hover:text-textPrimary text-xs cursor-grab" title="Drag to reorder"><i class="fa-solid fa-grip-vertical"></i></span>
+                            <button onclick="toggleTaskCompletion('${taskId}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0 transition-transform active:scale-90">
                                 ${isDone ? '<i class="fa-solid fa-check text-[10px] text-emerald-600"></i>' : ''}
                             </button>
                             <div class="truncate">
                                 <div class="flex items-center space-x-2">
+                                    ${isPinned ? '<i class="fa-solid fa-thumbtack text-amber-500 text-[10px] shrink-0" title="Pinned"></i>' : ''}
+                                    ${isOverdueCarried ? '<span class="text-rose-600 font-bold bg-rose-100 text-[10px] px-1.5 py-0.5 rounded border border-rose-300 shrink-0"><i class="fa-solid fa-triangle-exclamation mr-0.5"></i>Overdue Carried</span>' : ''}
                                     <p class="text-xs font-medium text-textPrimary truncate ${isDone ? 'line-through text-textSecondary' : ''}">${escapeHtml(task.title)}</p>
                                     ${task.dueTime ? `<span class="text-[10px] bg-rose-50 text-rose-600 font-semibold px-2 py-0.5 rounded-md shrink-0"><i class="fa-regular fa-clock mr-1"></i>${task.dueTime}</span>` : ''}
                                 </div>
@@ -859,18 +969,59 @@
                         </div>
                         <div class="flex items-center space-x-2 shrink-0">
                             <!-- Colored Dropdown Status Selector -->
-                            <select id="status-select-${task.id}" onchange="updateTaskStatusDropdown('${task.id}', this.value)" class="border text-[11px] rounded-lg px-2.5 py-1 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all ${dropdownColorClass}">
+                            <select id="status-select-${taskId}" onchange="updateTaskStatusDropdown('${taskId}', this.value)" class="border text-[11px] rounded-lg px-2.5 py-1 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all ${dropdownColorClass}">
                                 <option value="todo" ${currentStatus === 'todo' ? 'selected' : ''}>To Do</option>
                                 <option value="in_progress" ${currentStatus === 'in_progress' ? 'selected' : ''}>In Progress</option>
                                 <option value="done" ${currentStatus === 'done' ? 'selected' : ''}>Done</option>
                             </select>
 
-                            <button onclick="openTaskModal('edit', '${task.id}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Edit Task"><i class="fa-regular fa-pen-to-square text-amber-500"></i></button>
-                            <button onclick="deleteTask('${task.id}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Delete Task"><i class="fa-regular fa-trash-can text-rose-500"></i></button>
+                            <button onclick="toggleTaskPin('${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="${isPinned ? 'Unpin Task' : 'Pin Task'}"><i class="fa-solid fa-thumbtack ${isPinned ? 'text-amber-500' : 'text-textSecondary'}"></i></button>
+                            <button onclick="openTaskModal('edit', '${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Edit Task"><i class="fa-regular fa-pen-to-square text-amber-500"></i></button>
+                            <button onclick="deleteTask('${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Delete Task"><i class="fa-regular fa-trash-can text-rose-500"></i></button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // Drag and Drop Handlers
+        function handleDragStart(e, taskId) {
+            draggedTaskId = taskId;
+            e.dataTransfer.setData('text/plain', taskId);
+            setTimeout(() => {
+                const el = document.getElementById(`task-card-${taskId}`);
+                if (el) el.classList.add('dragging');
+            }, 0);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e, targetTaskId) {
+            e.preventDefault();
+            if (!draggedTaskId || draggedTaskId === targetTaskId) return;
+
+            const draggedIdx = tasks.findIndex(t => t.id === draggedTaskId);
+            const targetIdx = tasks.findIndex(t => t.id === targetTaskId);
+
+            if (draggedIdx !== -1 && targetIdx !== -1) {
+                const [movedTask] = tasks.splice(draggedIdx, 1);
+                tasks.splice(targetIdx, 0, movedTask);
+                
+                // Assign explicit order index to persist custom drag arrangement
+                tasks.forEach((t, idx) => {
+                    t.order = idx;
+                });
+
+                saveDataAndRefresh();
+                showToast('Task order updated');
+            }
+        }
+
+        function handleDragEnd(e) {
+            draggedTaskId = null;
+            document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
         }
 
         function updateTaskStatusDropdown(taskId, newStatus) {
@@ -878,6 +1029,9 @@
             if (task) {
                 task.status = newStatus;
                 task.completed = (newStatus === 'done');
+                if (task.completed) {
+                    task.isOverdueCarried = false;
+                }
                 saveDataAndRefresh();
                 showToast(`Task status updated to ${newStatus.replace('_', ' ')}`);
             }
@@ -888,6 +1042,9 @@
             if (task) {
                 task.completed = !task.completed;
                 task.status = task.completed ? 'done' : 'todo';
+                if (task.completed) {
+                    task.isOverdueCarried = false;
+                }
                 saveDataAndRefresh();
                 showToast(task.completed ? 'Task completed' : 'Task restored');
             }
@@ -965,6 +1122,7 @@
                     task.dueTime = dueTime;
                     task.status = status;
                     task.completed = (status === 'done');
+                    if (task.completed) task.isOverdueCarried = false;
                 }
                 showToast('Task updated successfully');
             } else {
@@ -976,7 +1134,9 @@
                     dueDate: dueDate || selectedCalendarDate,
                     dueTime: dueTime,
                     status: status,
-                    completed: (status === 'done')
+                    completed: (status === 'done'),
+                    isOverdueCarried: false,
+                    order: tasks.length
                 };
                 tasks.unshift(newTask);
                 showToast('Task added successfully');
@@ -1077,10 +1237,17 @@
         window.changeYear = changeYear;
         window.toggleCalendarExpand = toggleCalendarExpand;
         window.selectCalendarDate = selectCalendarDate;
+        window.updateTaskStatusFilter = updateTaskStatusFilter;
+        window.updateTaskDateSort = updateTaskDateSort;
         window.toggleTaskCompletion = toggleTaskCompletion;
+        window.toggleTaskPin = toggleTaskPin;
         window.deleteTask = deleteTask;
         window.deleteProject = deleteProject;
         window.updateTaskStatusDropdown = updateTaskStatusDropdown;
+        window.handleDragStart = handleDragStart;
+        window.handleDragOver = handleDragOver;
+        window.handleDrop = handleDrop;
+        window.handleDragEnd = handleDragEnd;
     </script>
 </body>
 </html>
