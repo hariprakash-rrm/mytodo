@@ -104,30 +104,30 @@
         <!-- ================= MAIN CONTENT AREA ================= -->
         <main class="flex-1 bg-cardBg flex flex-col overflow-hidden">
             <!-- Top Header -->
-            <header class="h-16 md:h-20 border-b border-borderSubtle px-4 md:px-8 flex items-center justify-between bg-cardBg z-10">
-                <div class="flex items-center space-x-2.5">
+            <header class="h-16 md:h-20 border-b border-borderSubtle px-3 md:px-8 flex items-center justify-between bg-cardBg z-10">
+                <div class="flex items-center space-x-2 min-w-0">
                     <!-- Mobile Hamburger Toggle -->
-                    <button onclick="toggleMobileSidebar()" class="w-9 h-9 rounded-xl bg-slate-100 border border-borderSubtle flex items-center justify-center text-xs md:hidden text-textPrimary hover:bg-slate-200">
+                    <button onclick="toggleMobileSidebar()" class="w-9 h-9 rounded-xl bg-slate-100 border border-borderSubtle flex items-center justify-center text-xs md:hidden text-textPrimary hover:bg-slate-200 shrink-0">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <div>
-                        <h2 id="active-project-title" class="font-bold text-sm md:text-base text-accentDark truncate max-w-[140px] sm:max-w-xs">No Project Selected</h2>
-                        <p id="active-project-subtitle" class="text-[11px] md:text-xs text-textSecondary truncate max-w-[160px] sm:max-w-sm">Create or select a project</p>
+                    <div class="min-w-0">
+                        <h2 id="active-project-title" class="font-bold text-xs md:text-base text-accentDark truncate">No Project Selected</h2>
+                        <p id="active-project-subtitle" class="text-[10px] md:text-xs text-textSecondary truncate">Create or select a project</p>
                     </div>
-                    <button onclick="openProjectModal('edit')" id="edit-project-btn" class="hover:opacity-80 text-xs hidden transition-all anim-icon-hover" title="Rename Project">
+                    <button onclick="openProjectModal('edit')" id="edit-project-btn" class="hover:opacity-80 text-xs hidden transition-all anim-icon-hover shrink-0" title="Rename Project">
                         <i class="fa-regular fa-pen-to-square text-amber-500"></i>
                     </button>
                 </div>
 
-                <div class="flex items-center space-x-3 md:space-x-4">
-                    <!-- Live Clock Widget -->
-                    <div class="hidden sm:flex items-center space-x-1.5 bg-canvasBg border border-borderSubtle px-3 py-1.5 rounded-xl text-xs font-medium text-textPrimary">
+                <div class="flex items-center space-x-2 md:space-x-4 shrink-0">
+                    <!-- Live Clock Widget (Visible on both Mobile and Desktop) -->
+                    <div class="flex items-center space-x-1.5 bg-canvasBg border border-borderSubtle px-2.5 md:px-3 py-1.5 rounded-xl text-[11px] md:text-xs font-medium text-textPrimary shrink-0">
                         <i class="fa-regular fa-clock text-rose-500"></i>
                         <span id="live-clock">00:00:00</span>
                     </div>
 
                     <!-- Project-level Performance Toggle -->
-                    <button onclick="toggleProjectPerformance()" id="project-perf-toggle-btn" class="bg-slate-100 border border-borderSubtle hover:bg-slate-200 text-textPrimary rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all hidden anim-icon-hover">
+                    <button onclick="toggleProjectPerformance()" id="project-perf-toggle-btn" class="bg-slate-100 border border-borderSubtle hover:bg-slate-200 text-textPrimary rounded-full py-1.5 px-2.5 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all hidden anim-icon-hover">
                         <i class="fa-solid fa-chart-pie text-violet-500 text-[11px]"></i>
                         <span id="perf-toggle-text" class="hidden sm:inline">Project Performance</span>
                     </button>
@@ -139,9 +139,9 @@
                         <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search tasks..." class="bg-canvasBg border border-borderSubtle text-xs rounded-full pl-9 pr-4 py-2 w-48 xl:w-56 text-textPrimary placeholder-textSecondary focus:outline-none focus:border-indigo-500 transition-all">
                     </div>
 
-                    <button onclick="openTaskModal('add')" id="add-task-header-btn" class="bg-slate-900 hover:bg-slate-800 text-white rounded-full py-2 px-3.5 md:px-4 text-xs font-medium flex items-center space-x-1.5 shadow-2xs transition-all hidden anim-bounce-hover">
+                    <button onclick="openTaskModal('add')" id="add-task-header-btn" class="bg-slate-900 hover:bg-slate-800 text-white rounded-full py-2 px-3 md:px-4 text-xs font-medium flex items-center space-x-1.5 shadow-2xs transition-all hidden anim-bounce-hover shrink-0">
                         <i class="fa-solid fa-plus text-[10px] text-emerald-400"></i>
-                        <span>Add task</span>
+                        <span class="hidden sm:inline">Add task</span>
                     </button>
                 </div>
             </header>
@@ -510,12 +510,12 @@
             const toggleBtn = document.getElementById('project-perf-toggle-btn');
             
             if (isProjectPerfActive) {
-                btnText.innerText = 'Schedule';
-                toggleBtn.className = "bg-slate-900 text-white rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover";
+                if (btnText) btnText.innerText = 'Schedule';
+                toggleBtn.className = "bg-slate-900 text-white rounded-full py-1.5 px-2.5 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover";
                 renderProjectPerformanceView();
             } else {
-                btnText.innerText = 'Project Performance';
-                toggleBtn.className = "bg-slate-100 border border-borderSubtle hover:bg-slate-200 text-textPrimary rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover";
+                if (btnText) btnText.innerText = 'Project Performance';
+                toggleBtn.className = "bg-slate-100 border border-borderSubtle hover:bg-slate-200 text-textPrimary rounded-full py-1.5 px-2.5 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover";
                 renderProjectWorkspace();
             }
         }
