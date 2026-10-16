@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit - Project Productivity Suite</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        canvasBg: '#F4F5F7',
+                        cardBg: '#FFFFFF',
+                        borderSubtle: '#E5E7EB',
+                        textPrimary: '#1F2937',
+                        textSecondary: '#6B7280',
+                        accentDark: '#111827'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #ECEEF2; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
+        .app-window {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        }
+        /* Custom Hover Icon Animations */
+        .anim-icon-hover:hover i {
+            transform: scale(1.25) rotate(8deg);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .anim-spin-hover:hover i {
+            transform: rotate(180deg);
+            transition: transform 0.4s ease;
+        }
+        .anim-bounce-hover:hover i {
+            animation: bounceIcon 0.6s infinite alternate;
+        }
+        @keyframes bounceIcon {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-3px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 md:p-6 antialiased text-textPrimary">
+
+    <div class="w-full max-w-[1200px] h-screen md:h-[800px] bg-canvasBg md:rounded-3xl app-window flex flex-col md:flex-row overflow-hidden relative">
+
+        <!-- MOBILE SIDEBAR OVERLAY BACKDROP -->
+        <div id="mobile-sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/40 z-30 md:hidden hidden transition-opacity"></div>
+
+        <!-- ================= PROJECTS SIDEBAR ================= -->
+        <aside id="sidebar-container" class="fixed md:relative inset-y-0 left-0 z-40 w-72 bg-cardBg border-r border-borderSubtle flex flex-col shrink-0 select-none transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div class="p-4 md:p-6 border-b border-borderSubtle flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-slate-100 border border-borderSubtle flex items-center justify-center text-xs anim-spin-hover cursor-pointer shadow-2xs" title="Orbit Suite">
+                        <i class="fa-solid fa-cube text-indigo-500"></i>
+                    </div>
+                    <span class="font-bold text-sm tracking-tight text-accentDark">Orbit Projects</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="openProjectModal('add')" class="w-7 h-7 rounded-xl bg-slate-100 border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-xs transition-all anim-icon-hover" title="Add Project">
+                        <i class="fa-solid fa-plus text-emerald-500"></i>
+                    </button>
+                    <button onclick="toggleMobileSidebar()" class="w-7 h-7 rounded-xl bg-slate-100 border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-xs md:hidden" title="Close Sidebar">
+                        <i class="fa-solid fa-xmark text-textPrimary"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Global Performance Menu Item -->
+            <div class="px-4 pt-4">
+                <button onclick="selectGlobalPerformance(); toggleMobileSidebar(true);" id="global-perf-btn" class="w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover">
+                    <i class="fa-solid fa-chart-line text-emerald-500"></i>
+                    <span>All Projects Performance</span>
+                </button>
+            </div>
+
+            <div class="px-4 pt-2">
+                <button onclick="selectAIAssistant(); toggleMobileSidebar(true);" id="ai-assistant-btn" class="w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover">
+                    <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i>
+                    <span>AI Task Assistant</span>
+                </button>
+            </div>
+
+            <div class="px-4 pt-4 pb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-textSecondary px-1">Projects</span>
+            </div>
+
+            <!-- Project List -->
+            <div class="px-4 pb-4 flex-1 overflow-y-auto space-y-1.5" id="projects-sidebar-list">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="p-4 border-t border-borderSubtle text-center">
+                <span class="text-[11px] text-textSecondary">Select a project or performance view</span>
+            </div>
+        </aside>
+
+        <!-- ================= MAIN CONTENT AREA ================= -->
+        <main class="flex-1 bg-cardBg flex flex-col overflow-hidden">
+            <!-- Top Header -->
+            <header class="h-16 md:h-20 border-b border-borderSubtle px-4 md:px-8 flex items-center justify-between bg-cardBg z-10">
+                <div class="flex items-center space-x-2.5">
+                    <!-- Mobile Hamburger Toggle -->
+                    <button onclick="toggleMobileSidebar()" class="w-9 h-9 rounded-xl bg-slate-100 border border-borderSubtle flex items-center justify-center text-xs md:hidden text-textPrimary hover:bg-slate-200">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div>
+                        <h2 id="active-project-title" class="font-bold text-sm md:text-base text-accentDark truncate max-w-[140px] sm:max-w-xs">No Project Selected</h2>
+                        <p id="active-project-subtitle" class="text-[11px] md:text-xs text-textSecondary truncate max-w-[160px] sm:max-w-sm">Create or select a project</p>
+                    </div>
+                    <button onclick="openProjectModal('edit')" id="edit-project-btn" class="hover:opacity-80 text-xs hidden transition-all anim-icon-hover" title="Rename Project">
+                        <i class="fa-regular fa-pen-to-square text-amber-500"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-2 md:space-x-3">
+                    <!-- Project-level Performance Toggle -->
+                    <button onclick="toggleProjectPerformance()" id="project-perf-toggle-btn" class="bg-slate-100 border border-borderSubtle hover:bg-slate-200 text-textPrimary rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all hidden anim-icon-hover">
+                        <i class="fa-solid fa-chart-pie text-violet-500 text-[11px]"></i>
+                        <span id="perf-toggle-text" class="hidden sm:inline">Project Performance</span>
+                    </button>
+
+                    <button onclick="openAIBrainstormModal()" id="ai-brainstorm-header-btn" class="bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-600 rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all hidden anim-icon-hover">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-500 text-[11px]"></i>
+                        <span class="hidden sm:inline">AI Brainstorm</span>
+                    </button>
+
+                    <div class="relative hidden lg:block" id="search-container">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-magnifying-glass text-xs text-sky-500"></i>
+                        </span>
+                        <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search tasks..." class="bg-canvasBg border border-borderSubtle text-xs rounded-full pl-9 pr-4 py-2 w-48 xl:w-56 text-textPrimary placeholder-textSecondary focus:outline-none focus:border-indigo-500 transition-all">
+                    </div>
+
+                    <button onclick="openTaskModal('add')" id="add-task-header-btn" class="bg-slate-900 hover:bg-slate-800 text-white rounded-full py-2 px-3.5 md:px-4 text-xs font-medium flex items-center space-x-1.5 shadow-2xs transition-all hidden anim-bounce-hover">
+                        <i class="fa-solid fa-plus text-[10px] text-emerald-400"></i>
+                        <span>Add task</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dynamic Workspace Body -->
+            <div id="workspace-body" class="flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg flex flex-col items-center justify-center text-center text-textSecondary">
+                <i class="fa-regular fa-folder-open text-4xl mb-3 text-amber-500 animate-pulse"></i>
+                <p class="text-sm font-medium">Please select or create a project from the left sidebar to view its calendar and task list.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- TASK MODAL -->
+    <div id="task-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs hidden opacity-0 transition-opacity duration-200 p-4">
+        <div class="bg-cardBg border border-borderSubtle w-full max-w-md rounded-2xl p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="task-modal-box">
+            <div class="flex items-center justify-between pb-3 border-b border-borderSubtle mb-4">
+                <h3 id="task-modal-title" class="font-bold text-sm text-accentDark flex items-center space-x-2"><i class="fa-solid fa-circle-plus text-emerald-500"></i><span>Create Task</span></h3>
+                <button onclick="closeTaskModal()" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
+            </div>
+            <form onsubmit="handleTaskFormSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold text-textSecondary uppercase tracking-wider mb-1">Task Title</label>
+                    <input type="text" id="modal-task-title" required placeholder="e.g., Deliver client documentation" class="w-full bg-canvasBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-textSecondary uppercase tracking-wider mb-1">Description</label>
+                    <textarea id="modal-task-desc" rows="2" placeholder="Optional details..." class="w-full bg-canvasBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-textSecondary uppercase tracking-wider mb-1">Due Date</label>
+                    <input type="date" id="modal-task-date" class="w-full bg-canvasBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-borderSubtle">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white anim-bounce-hover flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-400"></i><span>Save Task</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PROJECT MODAL -->
+    <div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs hidden opacity-0 transition-opacity duration-200 p-4">
+        <div class="bg-cardBg border border-borderSubtle w-full max-w-sm rounded-2xl p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="project-modal-box">
+            <div class="flex items-center justify-between pb-3 border-b border-borderSubtle mb-4">
+                <h3 id="project-modal-title" class="font-bold text-sm text-accentDark flex items-center space-x-2"><i class="fa-solid fa-folder-plus text-amber-500"></i><span>Create New Project</span></h3>
+                <button onclick="closeProjectModal()" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
+            </div>
+            <form onsubmit="handleProjectFormSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold text-textSecondary uppercase tracking-wider mb-1">Project Name</label>
+                    <input type="text" id="modal-project-name" required placeholder="e.g., Marketing Campaign" class="w-full bg-canvasBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-borderSubtle">
+                    <button type="button" onclick="closeProjectModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white anim-bounce-hover flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-400"></i><span>Save Project</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-accentDark text-white text-xs px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-sm animate-bounce"></i>
+        <span id="toast-text">Action completed successfully</span>
+    </div>
+
+    <!-- AI TASK ASSISTANT MODAL -->
+    <div id="ai-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs hidden opacity-0 transition-opacity duration-200 p-4">
+        <div class="bg-cardBg border border-borderSubtle w-full max-w-lg rounded-2xl p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="ai-modal-box">
+            <div class="flex items-center justify-between pb-3 border-b border-borderSubtle mb-4">
+                <h3 class="font-bold text-sm text-accentDark flex items-center space-x-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i>
+                    <span>Gemini AI Task Breakdown</span>
+                </h3>
+                <button onclick="closeAIModal()" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold text-textSecondary uppercase tracking-wider mb-1">What goal or project task do you want to plan?</label>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <input type="text" id="ai-prompt-input" placeholder="e.g., Launch a mobile marketing campaign in 2 weeks" class="flex-1 bg-canvasBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500">
+                        <button onclick="generateAITasks()" id="ai-generate-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center space-x-1.5 transition-all anim-bounce-hover">
+                            <i class="fa-solid fa-sparkles text-amber-300"></i>
+                            <span>Generate</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="ai-loading" class="hidden py-8 text-center space-y-2">
+                    <i class="fa-solid fa-spinner text-2xl text-purple-500 animate-spin"></i>
+                    <p class="text-xs text-textSecondary">Gemini is structuring your task roadmap...</p>
+                </div>
+
+                <div id="ai-result-container" class="hidden space-y-3">
+                    <p class="text-xs font-bold text-accentDark">Suggested Subtasks (Select to Add):</p>
+                    <div id="ai-tasks-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                        <!-- Populated by AI -->
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-2 pt-4 border-t border-borderSubtle mt-4">
+                <button type="button" onclick="closeAIModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Close</button>
+                <button type="button" onclick="addSelectedAITasks()" id="ai-add-selected-btn" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white anim-bounce-hover flex items-center space-x-1.5 hidden">
+                    <i class="fa-solid fa-plus text-emerald-400"></i>
+                    <span>Add Selected Tasks</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        let projects = JSON.parse(localStorage.getItem('orbit_pure_projects')) || [];
+        let tasks = JSON.parse(localStorage.getItem('orbit_pure_tasks')) || [];
+
+        let selectedProjectId = null;
+        let isGlobalPerfActive = false;
+        let isProjectPerfActive = false;
+        let isAIAssistantActive = false;
+        let editingTaskId = null;
+        let projectModalMode = 'add';
+        let now = new Date();
+        let currentYear = now.getFullYear();
+        let currentMonth = now.getMonth();
+        let selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        let searchQuery = '';
+        let generatedAiTasksCache = [];
+
+        function saveData() {
+            localStorage.setItem('orbit_pure_projects', JSON.stringify(projects));
+            localStorage.setItem('orbit_pure_tasks', JSON.stringify(tasks));
+            renderProjectsSidebar();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProjectsSidebar();
+            if (projects.length > 0) {
+                selectProject(projects[0].id);
+            } else {
+                selectGlobalPerformance();
+            }
+        });
+
+        function toggleMobileSidebar(forceClose = false) {
+            const sidebar = document.getElementById('sidebar-container');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            if (forceClose || !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            }
+        }
+
+        function selectAIAssistant() {
+            isAIAssistantActive = true;
+            isGlobalPerfActive = false;
+            isProjectPerfActive = false;
+            selectedProjectId = null;
+            renderProjectsSidebar();
+
+            document.getElementById('active-project-title').innerText = 'AI Task Assistant';
+            document.getElementById('active-project-subtitle').innerText = 'Powered by Gemini AI';
+            document.getElementById('edit-project-btn').classList.add('hidden');
+            document.getElementById('project-perf-toggle-btn').classList.add('hidden');
+            document.getElementById('ai-brainstorm-header-btn').classList.add('hidden');
+            document.getElementById('add-task-header-btn').classList.add('hidden');
+            document.getElementById('search-container').classList.add('hidden');
+
+            renderAIAssistantView();
+        }
+
+        function renderAIAssistantView() {
+            const workspace = document.getElementById('workspace-body');
+            workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-3xl mx-auto w-full";
+
+            workspace.innerHTML = `
+                <div class="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-sky-500/10 border border-purple-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg shadow-md shrink-0">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm text-accentDark">Gemini Productivity Strategist</h3>
+                            <p class="text-xs text-textSecondary">Enter any project goal to generate an actionable breakdown.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pt-2">
+                        <input type="text" id="ai-main-prompt" placeholder="e.g., Redesign company e-commerce flow in 10 days" class="flex-1 bg-white border border-borderSubtle rounded-xl px-4 py-3 text-xs text-textPrimary focus:outline-none focus:border-purple-500 shadow-2xs">
+                        <button onclick="generateMainAITasks()" id="ai-main-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl text-xs font-medium flex items-center justify-center space-x-2 shadow-sm transition-all anim-bounce-hover">
+                            <i class="fa-solid fa-sparkles text-amber-300"></i>
+                            <span>Generate Roadmap</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="ai-main-loading" class="hidden py-12 text-center space-y-3">
+                    <i class="fa-solid fa-spinner text-3xl text-purple-500 animate-spin"></i>
+                    <p class="text-xs font-semibold text-textSecondary">Gemini is analyzing and crafting your smart task list...</p>
+                </div>
+
+                <div id="ai-main-results" class="hidden space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                        <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-1.5"><i class="fa-solid fa-list-check text-purple-500"></i><span>Generated Action Plan</span></h4>
+                        <div class="flex items-center space-x-2">
+                            <select id="ai-target-project" class="bg-canvasBg border border-borderSubtle rounded-xl px-3 py-1.5 text-xs text-textPrimary focus:outline-none">
+                                ${projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
+                            </select>
+                            <button onclick="addAllMainAITasks()" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shadow-2xs anim-bounce-hover flex items-center space-x-1.5">
+                                <i class="fa-solid fa-plus text-emerald-400"></i>
+                                <span>Add All</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="ai-main-tasks-list" class="space-y-2.5">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            `;
+        }
+
+        async function generateMainAITasks() {
+            const promptInput = document.getElementById('ai-main-prompt');
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                showToast('Please enter a goal or objective');
+                return;
+            }
+
+            if (projects.length === 0) {
+                showToast('Please create a project first before generating AI tasks');
+                return;
+            }
+
+            const loadingEl = document.getElementById('ai-main-loading');
+            const resultsEl = document.getElementById('ai-main-results');
+            const listEl = document.getElementById('ai-main-tasks-list');
+            const btnEl = document.getElementById('ai-main-btn');
+
+            loadingEl.classList.remove('hidden');
+            resultsEl.classList.add('hidden');
+            btnEl.disabled = true;
+
+            try {
+                const systemPrompt = "Act as an expert project manager and productivity coach. Given a goal, provide a structured list of 5 to 8 practical subtasks. You must respond strictly in JSON format as an array of objects, where each object has 'title' (string) and 'description' (string).";
+                const userQuery = `Break down this goal into actionable tasks: ${prompt}`;
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    description: { type: "STRING" }
+                                },
+                                propertyOrdering: ["title", "description"]
+                            }
+                        }
+                    }
+                };
+
+                let response = null;
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break;
+                    } catch (e) {
+                        if (attempt === 2) throw e;
+                        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+                    }
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const parsed = JSON.parse(candidate.content.parts[0].text);
+                    generatedAiTasksCache = parsed;
+
+                    listEl.innerHTML = parsed.map((item, idx) => `
+                        <div class="bg-cardBg border border-borderSubtle rounded-xl p-4 flex items-start justify-between shadow-2xs">
+                            <div class="space-y-1 pr-2">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">Task ${idx + 1}</span>
+                                <h5 class="text-xs font-bold text-accentDark">${escapeHtml(item.title)}</h5>
+                                <p class="text-[11px] text-textSecondary">${escapeHtml(item.description)}</p>
+                            </div>
+                            <button onclick="addSingleAITask(${idx})" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-xs text-emerald-600 anim-icon-hover shrink-0" title="Add Task">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    `).join('');
+
+                    loadingEl.classList.add('hidden');
+                    resultsEl.classList.remove('hidden');
+                } else {
+                    throw new Error('Invalid response structure');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Failed to generate AI tasks. Please try again.');
+                loadingEl.classList.add('hidden');
+            } finally {
+                btnEl.disabled = false;
+            }
+        }
+
+        function addSingleAITask(idx) {
+            const item = generatedAiTasksCache[idx];
+            const targetProjId = document.getElementById('ai-target-project').value;
+            if (!item || !targetProjId) return;
+
+            const newTask = {
+                id: 't-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+                title: item.title,
+                description: item.description,
+                project: targetProjId,
+                dueDate: selectedCalendarDate,
+                completed: false
+            };
+            tasks.unshift(newTask);
+            saveData();
+            showToast(`Added "${item.title}" to project`);
+        }
+
+        function addAllMainAITasks() {
+            const targetProjId = document.getElementById('ai-target-project').value;
+            if (!targetProjId || generatedAiTasksCache.length === 0) return;
+
+            generatedAiTasksCache.forEach(item => {
+                const newTask = {
+                    id: 't-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+                    title: item.title,
+                    description: item.description,
+                    project: targetProjId,
+                    dueDate: selectedCalendarDate,
+                    completed: false
+                };
+                tasks.unshift(newTask);
+            });
+            saveData();
+            showToast('All AI generated tasks added successfully!');
+        }
+
+        function openAIBrainstormModal() {
+            if (!selectedProjectId) return;
+            const modal = document.getElementById('ai-modal');
+            const box = document.getElementById('ai-modal-box');
+            document.getElementById('ai-prompt-input').value = '';
+            document.getElementById('ai-loading').classList.add('hidden');
+            document.getElementById('ai-result-container').classList.add('hidden');
+            document.getElementById('ai-add-selected-btn').classList.add('hidden');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeAIModal() {
+            const modal = document.getElementById('ai-modal');
+            const box = document.getElementById('ai-modal-box');
+            modal.classList.add('opacity-0');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        async function generateAITasks() {
+            const promptInput = document.getElementById('ai-prompt-input');
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                showToast('Please enter a goal or prompt');
+                return;
+            }
+
+            const loadingEl = document.getElementById('ai-loading');
+            const resultContainer = document.getElementById('ai-result-container');
+            const listEl = document.getElementById('ai-tasks-list');
+            const addBtn = document.getElementById('ai-add-selected-btn');
+
+            loadingEl.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+
+            try {
+                const systemPrompt = "Act as an expert project manager. Provide 4-6 concise subtasks for the given goal in JSON format as an array of objects with 'title' and 'description'.";
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    description: { type: "STRING" }
+                                },
+                                propertyOrdering: ["title", "description"]
+                            }
+                        }
+                    }
+                };
+
+                let response = null;
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break;
+                    } catch (e) {
+                        if (attempt === 2) throw e;
+                        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+                    }
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const parsed = JSON.parse(candidate.content.parts[0].text);
+                    generatedAiTasksCache = parsed;
+
+                    listEl.innerHTML = parsed.map((item, idx) => `
+                        <label class="flex items-start space-x-3 p-3 rounded-xl bg-canvasBg border border-borderSubtle hover:border-indigo-300 cursor-pointer transition-all">
+                            <input type="checkbox" value="${idx}" class="ai-task-checkbox mt-0.5 rounded text-indigo-600 focus:ring-0">
+                            <div>
+                                <p class="text-xs font-bold text-accentDark">${escapeHtml(item.title)}</p>
+                                <p class="text-[11px] text-textSecondary">${escapeHtml(item.description)}</p>
+                            </div>
+                        </label>
+                    `).join('');
+
+                    loadingEl.classList.add('hidden');
+                    resultContainer.classList.remove('hidden');
+                    addBtn.classList.remove('hidden');
+                } else {
+                    throw new Error('Invalid response');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Failed to generate AI tasks');
+                loadingEl.classList.add('hidden');
+            }
+        }
+
+        function addSelectedAITasks() {
+            const checkboxes = document.querySelectorAll('.ai-task-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showToast('Please select at least one task');
+                return;
+            }
+
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.value);
+                const item = generatedAiTasksCache[idx];
+                if (item) {
+                    const newTask = {
+                        id: 't-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+                        title: item.title,
+                        description: item.description,
+                        project: selectedProjectId,
+                        dueDate: selectedCalendarDate,
+                        completed: false
+                    };
+                    tasks.unshift(newTask);
+                }
+            });
+
+            saveData();
+            closeAIModal();
+            showToast('Selected AI tasks added successfully');
+        }
+
+        function renderProjectsSidebar() {
+            const listEl = document.getElementById('projects-sidebar-list');
+            const globalBtn = document.getElementById('global-perf-btn');
+            const aiBtn = document.getElementById('ai-assistant-btn');
+            if (!listEl) return;
+
+            if (isGlobalPerfActive) {
+                globalBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-slate-900 text-white shadow-2xs transition-all anim-icon-hover";
+            } else {
+                globalBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover";
+            }
+
+            if (isAIAssistantActive) {
+                aiBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-slate-900 text-white shadow-2xs transition-all anim-icon-hover";
+            } else {
+                aiBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover";
+            }
+
+            if (projects.length === 0) {
+                listEl.innerHTML = `
+                    <div class="p-4 text-center text-textSecondary text-xs">
+                        No projects found. Create one above.
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = projects.map(proj => {
+                const count = tasks.filter(t => t.project === proj.id && !t.completed).length;
+                const isSelected = !isGlobalPerfActive && !isAIAssistantActive && selectedProjectId === proj.id;
+                return `
+                    <div class="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${isSelected ? 'bg-slate-900 text-white shadow-2xs' : 'text-textPrimary hover:bg-slate-100'}">
+                        <button onclick="selectProject('${proj.id}'); toggleMobileSidebar(true);" class="flex-1 flex items-center space-x-2.5 text-left anim-icon-hover truncate">
+                            <i class="fa-regular fa-folder text-amber-500 shrink-0"></i>
+                            <span class="truncate">${escapeHtml(proj.name)}</span>
+                        </button>
+                        <div class="flex items-center space-x-1.5 shrink-0" onclick="event.stopPropagation()">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md ${isSelected ? 'bg-white/20 text-white font-bold' : 'bg-slate-100 text-sky-600'}">${count > 0 ? count : ''}</span>
+                            <button onclick="openProjectModal('edit'); event.stopPropagation();" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Rename Project">
+                                <i class="fa-regular fa-pen-to-square text-[11px] text-amber-500"></i>
+                            </button>
+                            <button onclick="deleteProject('${proj.id}')" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Delete Project">
+                                <i class="fa-regular fa-trash-can text-[11px] text-rose-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectProject(id) {
+            selectedProjectId = id;
+            isGlobalPerfActive = false;
+            isProjectPerfActive = false;
+            isAIAssistantActive = false;
+            renderProjectsSidebar();
+
+            document.getElementById('edit-project-btn').classList.remove('hidden');
+            document.getElementById('project-perf-toggle-btn').classList.remove('hidden');
+            document.getElementById('ai-brainstorm-header-btn').classList.remove('hidden');
+            document.getElementById('add-task-header-btn').classList.remove('hidden');
+            document.getElementById('search-container').classList.remove('hidden');
+
+            renderProjectWorkspace();
+        }
+
+        function selectGlobalPerformance() {
+            isGlobalPerfActive = true;
+            isProjectPerfActive = false;
+            isAIAssistantActive = false;
+            selectedProjectId = null;
+            renderProjectsSidebar();
+
+            document.getElementById('active-project-title').innerText = 'All Performance';
+            document.getElementById('active-project-subtitle').innerText = 'Overview across projects';
+            document.getElementById('edit-project-btn').classList.add('hidden');
+            document.getElementById('project-perf-toggle-btn').classList.add('hidden');
+            document.getElementById('ai-brainstorm-header-btn').classList.add('hidden');
+            document.getElementById('add-task-header-btn').classList.add('hidden');
+            document.getElementById('search-container').classList.add('hidden');
+
+            renderGlobalPerformanceView();
+        }
+
+        function renderGlobalPerformanceView() {
+            const workspace = document.getElementById('workspace-body');
+            workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-4xl mx-auto w-full";
+
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            const totalProjects = projects.length;
+
+            workspace.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+                    <div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Completion</span>
+                            <i class="fa-solid fa-chart-line text-emerald-500 text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${completionRate}%</h3>
+                        <p class="text-[11px] text-textSecondary">${completedTasks} of ${totalTasks} completed</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-500/10 to-sky-500/10 border border-indigo-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Projects</span>
+                            <i class="fa-solid fa-folder-open text-indigo-500 text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${totalProjects}</h3>
+                        <p class="text-[11px] text-textSecondary">Active portfolios</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-purple-600">Active Tasks</span>
+                            <i class="fa-solid fa-list-check text-purple-500 text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${totalTasks - completedTasks}</h3>
+                        <p class="text-[11px] text-textSecondary">Pending execution</p>
+                    </div>
+                </div>
+
+                <div class="bg-cardBg border border-borderSubtle rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
+                    <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-bars-progress text-sky-500"></i>
+                        <span>Project Breakdown</span>
+                    </h4>
+                    <div class="space-y-3">
+                        ${projects.length === 0 ? '<p class="text-xs text-textSecondary text-center py-4">No projects available.</p>' : projects.map(p => {
+                            const pTasks = tasks.filter(t => t.project === p.id);
+                            const pComp = pTasks.filter(t => t.completed).length;
+                            const pRate = pTasks.length > 0 ? Math.round((pComp / pTasks.length) * 100) : 0;
+                            return `
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="font-bold text-accentDark">${escapeHtml(p.name)}</span>
+                                        <span class="text-textSecondary">${pComp}/${pTasks.length} (${pRate}%)</span>
+                                    </div>
+                                    <div class="w-full bg-canvasBg h-2 rounded-full overflow-hidden border border-borderSubtle">
+                                        <div class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: ${pRate}%"></div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleProjectPerformance() {
+            isProjectPerfActive = !isProjectPerfActive;
+            const btnText = document.getElementById('perf-toggle-text');
+            const toggleBtn = document.getElementById('project-perf-toggle-btn');
+            
+            if (isProjectPerfActive) {
+                btnText.innerText = 'Schedule';
+                toggleBtn.className = "bg-slate-900 text-white rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover";
+                renderProjectPerformanceView();
+            } else {
+                btnText.innerText = 'Project Performance';
+                toggleBtn.className = "bg-slate-100 border border-borderSubtle hover:bg-slate-200 text-textPrimary rounded-full py-1.5 px-3 md:py-2 md:px-3.5 text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover";
+                renderProjectWorkspace();
+            }
+        }
+
+        function renderProjectPerformanceView() {
+            const proj = projects.find(p => p.id === selectedProjectId);
+            if (!proj) return;
+
+            const workspace = document.getElementById('workspace-body');
+            workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-4xl mx-auto w-full";
+
+            const pTasks = tasks.filter(t => t.project === proj.id);
+            const total = pTasks.length;
+            const completed = pTasks.filter(t => t.completed).length;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            workspace.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Completion</span>
+                            <i class="fa-solid fa-chart-pie text-emerald-500 text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${rate}%</h3>
+                        <p class="text-[11px] text-textSecondary">${completed} of ${total} tasks completed</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-500/10 to-sky-500/10 border border-indigo-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Pending</span>
+                            <i class="fa-solid fa-clock text-indigo-500 text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${total - completed}</h3>
+                        <p class="text-[11px] text-textSecondary">Remaining on schedule</p>
+                    </div>
+                </div>
+
+                <div class="bg-cardBg border border-borderSubtle rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
+                    <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-list-check text-purple-500"></i>
+                        <span>Task Status List</span>
+                    </h4>
+                    <div class="space-y-2.5">
+                        ${total === 0 ? '<p class="text-xs text-textSecondary text-center py-4">No tasks found for this project.</p>' : pTasks.map(t => `
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-canvasBg border border-borderSubtle">
+                                <div class="flex items-center space-x-3 pr-2">
+                                    <span class="w-2.5 h-2.5 rounded-full shrink-0 ${t.completed ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                                    <div class="truncate">
+                                        <p class="text-xs font-medium text-accentDark truncate ${t.completed ? 'line-through text-textSecondary' : ''}">${escapeHtml(t.title)}</p>
+                                        <p class="text-[10px] text-textSecondary">Due: ${t.dueDate}</p>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] px-2.5 py-1 rounded-md font-semibold shrink-0 ${t.completed ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">
+                                    ${t.completed ? 'Done' : 'Pending'}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function deleteProject(id) {
+            if (!confirm('Are you sure you want to delete this project and all its tasks?')) return;
+            projects = projects.filter(p => p.id !== id);
+            tasks = tasks.filter(t => t.project !== id);
+            if (selectedProjectId === id) {
+                if (projects.length > 0) {
+                    selectProject(projects[0].id);
+                } else {
+                    selectedProjectId = null;
+                    document.getElementById('active-project-title').innerText = 'No Project Selected';
+                    document.getElementById('active-project-subtitle').innerText = 'Create or select a project';
+                    document.getElementById('edit-project-btn').classList.add('hidden');
+                    document.getElementById('project-perf-toggle-btn').classList.add('hidden');
+                    document.getElementById('ai-brainstorm-header-btn').classList.add('hidden');
+                    document.getElementById('add-task-header-btn').classList.add('hidden');
+                    document.getElementById('workspace-body').innerHTML = `
+                        <i class="fa-regular fa-folder-open text-4xl mb-3 text-amber-500 animate-pulse"></i>
+                        <p class="text-sm font-medium">Please select or create a project from the left sidebar to view its calendar and task list.</p>
+                    `;
+                }
+            }
+            saveData();
+            showToast('Project deleted successfully');
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            const monthStr = String(currentMonth + 1).padStart(2, '0');
+            selectedCalendarDate = `${currentYear}-${monthStr}-01`;
+            renderProjectWorkspace();
+        }
+
+        function changeYear(direction) {
+            currentYear += direction;
+            const monthStr = String(currentMonth + 1).padStart(2, '0');
+            selectedCalendarDate = `${currentYear}-${monthStr}-01`;
+            renderProjectWorkspace();
+        }
+
+        function renderProjectWorkspace() {
+            const proj = projects.find(p => p.id === selectedProjectId);
+            if (!proj) return;
+
+            document.getElementById('active-project-title').innerText = proj.name;
+            document.getElementById('active-project-subtitle').innerText = `Managing schedule for ${proj.name}`;
+
+            const workspace = document.getElementById('workspace-body');
+            workspace.className = "flex-1 overflow-y-auto p-4 md:p-6 bg-cardBg text-left space-y-5 max-w-4xl mx-auto w-full";
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const currentMonthName = monthNames[currentMonth];
+
+            let html = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+                    <!-- COLUMN 1 & 2: Compact Classic Calendar View -->
+                    <div class="md:col-span-2 bg-cardBg border border-borderSubtle rounded-2xl p-4 shadow-2xs space-y-3">
+                        <div class="flex items-center justify-between px-1">
+                            <div class="flex items-center space-x-2">
+                                <h3 class="font-bold text-xs text-accentDark flex items-center space-x-1.5"><i class="fa-regular fa-calendar text-rose-500"></i><span>${currentMonthName} ${currentYear}</span></h3>
+                                <div class="flex items-center space-x-1">
+                                    <button onclick="changeYear(-1)" class="w-5 h-5 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[9px] anim-icon-hover" title="Previous Year"><i class="fa-solid fa-angles-left text-indigo-500"></i></button>
+                                    <button onclick="changeYear(1)" class="w-5 h-5 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[9px] anim-icon-hover" title="Next Year"><i class="fa-solid fa-angles-right text-indigo-500"></i></button>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <button onclick="changeMonth(-1)" class="w-6 h-6 rounded-lg bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Month"><i class="fa-solid fa-chevron-left text-indigo-500"></i></button>
+                                <button onclick="changeMonth(1)" class="w-6 h-6 rounded-lg bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Month"><i class="fa-solid fa-chevron-right text-indigo-500"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Calendar Grid - Compact sizing -->
+                        <div class="grid grid-cols-7 gap-1.5 text-center text-[11px]">
+                            <span class="font-bold text-textSecondary py-0.5">Mo</span>
+                            <span class="font-bold text-textSecondary py-0.5">Tu</span>
+                            <span class="font-bold text-textSecondary py-0.5">We</span>
+                            <span class="font-bold text-textSecondary py-0.5">Th</span>
+                            <span class="font-bold text-textSecondary py-0.5">Fr</span>
+                            <span class="font-bold text-textSecondary py-0.5">Sa</span>
+                            <span class="font-bold text-textSecondary py-0.5">Su</span>
+            `;
+
+            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+            const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                html += `<div></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayStr = String(day).padStart(2, '0');
+                const monthStr = String(currentMonth + 1).padStart(2, '0');
+                const dateKey = `${currentYear}-${monthStr}-${dayStr}`;
+                const isSelected = selectedCalendarDate === dateKey;
+                const hasTask = tasks.some(t => t.project === selectedProjectId && t.dueDate === dateKey && !t.completed);
+
+                html += `
+                    <div onclick="selectCalendarDate('${dateKey}')" class="h-8 rounded-lg flex flex-col items-center justify-center cursor-pointer border transition-all ${isSelected ? 'bg-slate-900 text-white border-slate-900 font-bold shadow-2xs scale-105' : 'bg-canvasBg border-borderSubtle hover:border-indigo-300 text-textPrimary hover:scale-105'}">
+                        <span class="text-[11px] leading-none">${day}</span>
+                        <span class="w-1 h-1 rounded-full mt-0.5 ${hasTask ? (isSelected ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-transparent'}"></span>
+                    </div>
+                `;
+            }
+
+            html += `
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 3: Task Summary & Quick Actions -->
+                    <div class="bg-cardBg border border-borderSubtle rounded-2xl p-4 shadow-2xs flex flex-col justify-between space-y-3">
+                        <div>
+                            <h3 class="font-bold text-xs text-accentDark mb-1 flex items-center space-x-1.5"><i class="fa-solid fa-circle-info text-sky-500"></i><span>Project Overview</span></h3>
+                            <p class="text-[11px] text-textSecondary mb-3">Quick summary for ${escapeHtml(proj.name)}</p>
+                            <div class="space-y-1.5 text-[11px]">
+                                <div class="flex justify-between py-1 border-b border-borderSubtle"><span class="text-textSecondary">Total Tasks:</span><span class="font-bold text-accentDark">${tasks.filter(t => t.project === selectedProjectId).length}</span></div>
+                                <div class="flex justify-between py-1 border-b border-borderSubtle"><span class="text-textSecondary">Active Date:</span><span class="font-bold text-accentDark">${selectedCalendarDate}</span></div>
+                            </div>
+                        </div>
+                        <button onclick="openTaskModal('add')" class="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-2 text-xs font-medium shadow-2xs transition-all anim-bounce-hover flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-plus text-[10px] text-emerald-400"></i>
+                            <span>Add Task</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RESPECTIVE TASKS LIST FOR SELECTED DATE -->
+                <div class="space-y-2.5 pt-3 border-t border-borderSubtle">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
+                        <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
+                    </div>
+                    <div id="project-tasks-list" class="space-y-2">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            `;
+
+            workspace.innerHTML = html;
+            renderProjectTasksForDate();
+        }
+
+        function selectCalendarDate(dateKey) {
+            selectedCalendarDate = dateKey;
+            renderProjectWorkspace();
+        }
+
+        function renderProjectTasksForDate() {
+            const listEl = document.getElementById('project-tasks-list');
+            const countEl = document.getElementById('date-tasks-count');
+            if (!listEl) return;
+
+            let filtered = tasks.filter(t => t.project === selectedProjectId && t.dueDate === selectedCalendarDate);
+            if (searchQuery) {
+                filtered = filtered.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            if (countEl) countEl.innerText = `${filtered.length} tasks`;
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="bg-canvasBg border border-borderSubtle rounded-xl p-5 text-center text-textSecondary text-xs">
+                        No tasks scheduled for ${selectedCalendarDate}.
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(task => `
+                <div class="bg-cardBg border border-borderSubtle hover:border-indigo-300 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all anim-icon-hover">
+                    <div class="flex items-center space-x-3 pr-2 truncate">
+                        <button onclick="toggleTaskCompletion('${task.id}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0 transition-transform active:scale-90">
+                            ${task.completed ? '<i class="fa-solid fa-check text-[10px] text-emerald-600"></i>' : ''}
+                        </button>
+                        <div class="truncate">
+                            <p class="text-xs font-medium text-textPrimary truncate ${task.completed ? 'line-through text-textSecondary' : ''}">${escapeHtml(task.title)}</p>
+                            ${task.description ? `<p class="text-[11px] text-textSecondary truncate">${escapeHtml(task.description)}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <button onclick="openTaskModal('edit', '${task.id}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Edit Task"><i class="fa-regular fa-pen-to-square text-amber-500"></i></button>
+                        <button onclick="deleteTask('${task.id}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Delete Task"><i class="fa-regular fa-trash-can text-rose-500"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleTaskCompletion(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveData();
+                showToast(task.completed ? 'Task completed' : 'Task restored');
+            }
+        }
+
+        function deleteTask(id) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            tasks = tasks.filter(t => t.id !== id);
+            saveData();
+            showToast('Task deleted');
+        }
+
+        function handleSearch(val) {
+            searchQuery = val;
+            if (selectedProjectId && !isProjectPerfActive) renderProjectTasksForDate();
+        }
+
+        function openTaskModal(mode, taskId = null) {
+            if (!selectedProjectId) return;
+            const modal = document.getElementById('task-modal');
+            const box = document.getElementById('task-modal-box');
+            const titleEl = document.getElementById('task-modal-title');
+            
+            editingTaskId = taskId;
+            if (mode === 'edit' && taskId) {
+                titleEl.innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-500"></i><span>Edit Task</span>';
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    document.getElementById('modal-task-title').value = task.title;
+                    document.getElementById('modal-task-desc').value = task.description || '';
+                    document.getElementById('modal-task-date').value = task.dueDate;
+                }
+            } else {
+                titleEl.innerHTML = '<i class="fa-solid fa-circle-plus text-emerald-500"></i><span>Create Task</span>';
+                document.getElementById('modal-task-title').value = '';
+                document.getElementById('modal-task-desc').value = '';
+                document.getElementById('modal-task-date').value = selectedCalendarDate;
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeTaskModal() {
+            const modal = document.getElementById('task-modal');
+            const box = document.getElementById('task-modal-box');
+            modal.classList.add('opacity-0');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function handleTaskFormSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('modal-task-title').value;
+            const description = document.getElementById('modal-task-desc').value;
+            const dueDate = document.getElementById('modal-task-date').value;
+
+            if (editingTaskId) {
+                const task = tasks.find(t => t.id === editingTaskId);
+                if (task) {
+                    task.title = title;
+                    task.description = description;
+                    task.dueDate = dueDate || selectedCalendarDate;
+                }
+                showToast('Task updated successfully');
+            } else {
+                const newTask = {
+                    id: 't-' + Date.now(),
+                    title,
+                    description,
+                    project: selectedProjectId,
+                    dueDate: dueDate || selectedCalendarDate,
+                    completed: false
+                };
+                tasks.unshift(newTask);
+                showToast('Task added successfully');
+            }
+
+            saveData();
+            closeTaskModal();
+        }
+
+        function openProjectModal(mode) {
+            projectModalMode = mode;
+            const modal = document.getElementById('project-modal');
+            const box = document.getElementById('project-modal-box');
+            const titleEl = document.getElementById('project-modal-title');
+            const nameInput = document.getElementById('modal-project-name');
+
+            if (mode === 'edit') {
+                titleEl.innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-500"></i><span>Rename Project</span>';
+                const proj = projects.find(p => p.id === selectedProjectId);
+                nameInput.value = proj ? proj.name : '';
+            } else {
+                titleEl.innerHTML = '<i class="fa-solid fa-folder-plus text-amber-500"></i><span>Create New Project</span>';
+                nameInput.value = '';
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeProjectModal() {
+            const modal = document.getElementById('project-modal');
+            const box = document.getElementById('project-modal-box');
+            modal.classList.add('opacity-0');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function handleProjectFormSubmit(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('modal-project-name');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            if (projectModalMode === 'edit') {
+                const proj = projects.find(p => p.id === selectedProjectId);
+                if (proj) {
+                    proj.name = name;
+                    showToast('Project renamed successfully');
+                }
+            } else {
+                const newProj = { id: 'proj-' + Date.now(), name };
+                projects.push(newProj);
+                selectProject(newProj.id);
+                showToast('Project created successfully');
+            }
+
+            saveData();
+            closeProjectModal();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
