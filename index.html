@@ -64,14 +64,6 @@
                 </div>
             </div>
 
-            <!-- Global Performance Menu Item -->
-            <div class="px-4 pt-4">
-                <button onclick="selectGlobalPerformance(); toggleMobileSidebar(true);" id="global-perf-btn" class="w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover">
-                    <i class="fa-solid fa-chart-line text-emerald-500"></i>
-                    <span>All Projects Performance</span>
-                </button>
-            </div>
-
             <div class="px-4 pt-4 pb-2">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-textSecondary px-1">Projects</span>
             </div>
@@ -80,7 +72,7 @@
             <div class="px-4 pb-4 flex-1 overflow-y-auto space-y-1.5" id="projects-sidebar-list"></div>
 
             <div class="p-4 border-t border-borderSubtle text-center">
-                <span class="text-[11px] text-textSecondary">Select a project or performance view</span>
+                <span class="text-[11px] text-textSecondary">Select a project to view tasks</span>
             </div>
         </aside>
 
@@ -116,18 +108,6 @@
                     <div class="hidden md:flex items-center space-x-1.5 bg-canvasBg border border-borderSubtle px-3 py-1.5 rounded-xl text-xs font-medium text-textPrimary shrink-0">
                         <i class="fa-regular fa-clock text-rose-500"></i>
                         <span id="live-clock">00:00:00</span>
-                    </div>
-
-                    <!-- View Switcher Tabs -->
-                    <div id="view-switchers" class="hidden flex items-center space-x-1 bg-canvasBg border border-borderSubtle p-1 rounded-xl shrink-0">
-                        <button onclick="switchProjectView('calendar')" id="btn-view-calendar" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 bg-slate-900 text-white shadow-2xs">
-                            <i class="fa-regular fa-calendar text-indigo-400 text-[11px]"></i>
-                            <span>Calendar</span>
-                        </button>
-                        <button onclick="switchProjectView('perf')" id="btn-view-perf" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 text-textSecondary hover:text-textPrimary">
-                            <i class="fa-solid fa-chart-pie text-violet-500 text-[11px]"></i>
-                            <span>Stats</span>
-                        </button>
                     </div>
 
                     <div class="relative hidden lg:block" id="search-container">
@@ -242,8 +222,6 @@
         let tasks = JSON.parse(localStorage.getItem('orbit_pure_tasks')) || [];
 
         let selectedProjectId = null;
-        let isGlobalPerfActive = false;
-        let activeProjectView = 'calendar';
         let isCalendarExpanded = false;
         let editingTaskId = null;
         let editingProjectId = null;
@@ -263,15 +241,13 @@
             localStorage.setItem('orbit_pure_projects', JSON.stringify(projects));
             localStorage.setItem('orbit_pure_tasks', JSON.stringify(tasks));
             renderProjectsSidebar();
-            if (isGlobalPerfActive) renderGlobalPerformanceView();
-            else if (selectedProjectId) renderCurrentProjectView();
+            if (selectedProjectId) renderProjectWorkspace();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             checkAndCarryOverOverdueTasks();
             renderProjectsSidebar();
-            if (projects.length > 0) selectProject(projects[0].id);
-            else selectGlobalPerformance();
+            resetToPromptState();
             startLiveClock();
             setInterval(checkTaskAlarms, 1000);
         });
@@ -361,10 +337,7 @@
 
         function renderProjectsSidebar() {
             const listEl = document.getElementById('projects-sidebar-list');
-            const globalBtn = document.getElementById('global-perf-btn');
             if (!listEl) return;
-
-            globalBtn.className = `w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all anim-icon-hover ${isGlobalPerfActive ? 'bg-slate-900 text-white shadow-2xs' : 'text-textPrimary hover:bg-slate-100'}`;
 
             if (projects.length === 0) {
                 listEl.innerHTML = `<div class="p-4 text-center text-textSecondary text-xs">No projects found. Create one above.</div>`;
@@ -373,7 +346,7 @@
 
             listEl.innerHTML = projects.map(proj => {
                 const count = tasks.filter(t => t.project === proj.id && !t.completed).length;
-                const isSelected = !isGlobalPerfActive && selectedProjectId === proj.id;
+                const isSelected = selectedProjectId === proj.id;
                 return `
                     <div class="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${isSelected ? 'bg-slate-900 text-white shadow-2xs' : 'text-textPrimary hover:bg-slate-100'}">
                         <button onclick="selectProject('${proj.id}'); toggleMobileSidebar(true);" class="flex-1 flex items-center space-x-2.5 text-left anim-icon-hover truncate">
@@ -396,41 +369,29 @@
 
         function selectProject(id) {
             selectedProjectId = id;
-            isGlobalPerfActive = false;
             renderProjectsSidebar();
             toggleHeaderVisibility(false);
-            renderCurrentProjectView();
+            renderProjectWorkspace();
         }
 
-        function selectGlobalPerformance() {
-            isGlobalPerfActive = true;
+        function resetToPromptState() {
             selectedProjectId = null;
             renderProjectsSidebar();
-            document.getElementById('active-project-title').innerText = 'All Performance';
-            document.getElementById('active-project-subtitle').innerText = 'Overview across projects';
+            document.getElementById('active-project-title').innerText = 'No Project Selected';
+            document.getElementById('active-project-subtitle').innerText = 'Create or select a project';
             toggleHeaderVisibility(true);
-            renderGlobalPerformanceView();
+            const workspace = document.getElementById('workspace-body');
+            workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg flex flex-col items-center justify-center text-center text-textSecondary";
+            workspace.innerHTML = `
+                <i class="fa-regular fa-folder-open text-4xl mb-3 text-amber-500 animate-pulse"></i>
+                <p class="text-sm font-medium">Please select or create a project from the left sidebar to view its calendar and task list.</p>
+            `;
         }
 
-        function toggleHeaderVisibility(isGlobal) {
-            document.getElementById('edit-project-btn').classList.toggle('hidden', isGlobal);
-            document.getElementById('view-switchers').classList.toggle('hidden', isGlobal);
-            document.getElementById('add-task-header-btn').classList.toggle('hidden', isGlobal);
-            document.getElementById('search-container').classList.toggle('hidden', isGlobal);
-        }
-
-        function switchProjectView(view) {
-            activeProjectView = view;
-            ['calendar', 'perf'].forEach(v => {
-                const btn = document.getElementById(`btn-view-${v}`);
-                btn.className = `px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 ${view === v ? 'bg-slate-900 text-white shadow-2xs' : 'text-textSecondary hover:text-textPrimary'}`;
-            });
-            renderCurrentProjectView();
-        }
-
-        function renderCurrentProjectView() {
-            if (activeProjectView === 'calendar') renderProjectWorkspace();
-            else renderProjectPerformanceView();
+        function toggleHeaderVisibility(isHidden) {
+            document.getElementById('edit-project-btn').classList.toggle('hidden', isHidden);
+            document.getElementById('add-task-header-btn').classList.toggle('hidden', isHidden);
+            document.getElementById('search-container').classList.toggle('hidden', isHidden);
         }
 
         function getTaskMetrics(pTasks) {
@@ -439,130 +400,7 @@
             const inProgress = pTasks.filter(t => t.status === 'in_progress').length;
             const dropped = pTasks.filter(t => t.status === 'dropped').length;
             const todo = total - completed - inProgress - dropped;
-            return {
-                total, completed, inProgress, dropped, todo,
-                completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
-                inProgressRate: total > 0 ? Math.round((inProgress / total) * 100) : 0,
-                droppedRate: total > 0 ? Math.round((dropped / total) * 100) : 0
-            };
-        }
-
-        function renderGlobalPerformanceView() {
-            const workspace = document.getElementById('workspace-body');
-            workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-4xl mx-auto w-full";
-            const globalMetrics = getTaskMetrics(tasks);
-
-            workspace.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 md:gap-4">
-                    ${renderMetricCard('To Do', globalMetrics.todo, 'Pending execution', 'indigo', 'fa-list-check')}
-                    ${renderMetricCard('In Progress', globalMetrics.inProgress, globalMetrics.inProgressRate + '% active workflow', 'amber', 'fa-spinner')}
-                    ${renderMetricCard('Completion', globalMetrics.completionRate + '%', globalMetrics.completed + ' completed', 'emerald', 'fa-chart-line')}
-                    ${renderMetricCard('Dropped', globalMetrics.dropped, globalMetrics.droppedRate + '% canceled plans', 'rose', 'fa-ban')}
-                </div>
-                <div class="bg-cardBg border border-borderSubtle rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-2">
-                            <i class="fa-solid fa-folder-open text-amber-500"></i>
-                            <span>Projects Status Breakdown</span>
-                        </h4>
-                        <span class="text-[11px] text-textSecondary">Click any project to view its workspace</span>
-                    </div>
-                    <div class="space-y-3">
-                        ${projects.length === 0 ? '<p class="text-xs text-textSecondary text-center py-4">No projects available.</p>' : projects.map(p => {
-                            const m = getTaskMetrics(tasks.filter(t => t.project === p.id));
-                            const todoRate = m.total > 0 ? Math.round((m.todo / m.total) * 100) : 0;
-                            return `
-                                <div onclick="selectProject('${p.id}')" class="space-y-2 p-3.5 rounded-xl bg-canvasBg border border-borderSubtle hover:border-indigo-400 cursor-pointer transition-all">
-                                    <div class="flex justify-between items-center text-xs">
-                                        <span class="font-bold text-accentDark flex items-center space-x-2">
-                                            <i class="fa-regular fa-folder text-amber-500"></i>
-                                            <span>${escapeHtml(p.name)}</span>
-                                        </span>
-                                        <span class="text-xs font-semibold bg-white border border-borderSubtle px-2 py-0.5 rounded-md text-sky-600">${m.total} tasks</span>
-                                    </div>
-                                    <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
-                                        <div class="bg-indigo-400 h-full" style="width: ${todoRate}%"></div>
-                                        <div class="bg-amber-500 h-full" style="width: ${m.inProgressRate}%"></div>
-                                        <div class="bg-emerald-500 h-full" style="width: ${m.completionRate}%"></div>
-                                        <div class="bg-rose-400 h-full" style="width: ${m.droppedRate}%"></div>
-                                    </div>
-                                    <div class="flex items-center justify-between text-[10px] text-textSecondary pt-0.5">
-                                        <span class="text-indigo-600 font-semibold">To Do: ${m.todo}</span>
-                                        <span class="text-amber-600 font-semibold">Active: ${m.inProgress}</span>
-                                        <span class="text-emerald-600 font-semibold">Done: ${m.completed}</span>
-                                        <span class="text-rose-600 font-semibold">Dropped: ${m.dropped}</span>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderProjectPerformanceView() {
-            const proj = projects.find(p => p.id === selectedProjectId);
-            if (!proj) return;
-            const workspace = document.getElementById('workspace-body');
-            workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-4xl mx-auto w-full";
-            const m = getTaskMetrics(tasks.filter(t => t.project === proj.id));
-            const pTasks = tasks.filter(t => t.project === proj.id);
-
-            workspace.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 md:gap-6">
-                    ${renderMetricCard('To Do', m.todo, 'Remaining on schedule', 'indigo', 'fa-clock')}
-                    ${renderMetricCard('In Progress', m.inProgress, m.inProgressRate + '% active tasks', 'amber', 'fa-spinner')}
-                    ${renderMetricCard('Completion', m.completionRate + '%', `${m.completed} of ${m.total} tasks completed`, 'emerald', 'fa-chart-pie')}
-                    ${renderMetricCard('Dropped', m.dropped, 'Canceled plans', 'rose', 'fa-ban')}
-                </div>
-                <div class="bg-cardBg border border-borderSubtle rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
-                    <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-2">
-                        <i class="fa-solid fa-list-check text-purple-500"></i><span>Task Status List</span>
-                    </h4>
-                    <div class="space-y-2.5">
-                        ${m.total === 0 ? '<p class="text-xs text-textSecondary text-center py-4">No tasks found for this project.</p>' : pTasks.map(t => {
-                            const isDone = t.completed || t.status === 'done';
-                            const isDropped = t.status === 'dropped';
-                            const s = getStatusBadgeStyle(t.status || (isDone ? 'done' : 'todo'));
-                            return `
-                                <div class="flex items-center justify-between p-3 rounded-xl bg-canvasBg border border-borderSubtle">
-                                    <div class="flex items-center space-x-3 pr-2 truncate">
-                                        <span class="w-2.5 h-2.5 rounded-full shrink-0 ${s.dot}"></span>
-                                        <div class="truncate">
-                                            <p class="text-xs font-medium text-accentDark truncate ${isDone || isDropped ? 'line-through text-textSecondary' : ''}">${escapeHtml(t.title)}</p>
-                                            <p class="text-[10px] text-textSecondary">Due: ${t.dueDate} ${t.dueTime ? 'at ' + t.dueTime : ''}</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-[11px] px-2.5 py-1 rounded-md font-semibold shrink-0 ${s.badge}">${s.label}</span>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderMetricCard(title, value, subtitle, color, icon) {
-            return `
-                <div class="bg-gradient-to-br from-${color}-500/10 to-${color}-600/10 border border-${color}-200 rounded-2xl p-4 md:p-5 shadow-2xs space-y-1.5">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-${color}-600">${title}</span>
-                        <i class="fa-solid ${icon} text-${color}-500 text-base"></i>
-                    </div>
-                    <h3 class="text-xl md:text-2xl font-extrabold text-accentDark">${value}</h3>
-                    <p class="text-[10px] text-textSecondary">${subtitle}</p>
-                </div>
-            `;
-        }
-
-        function getStatusBadgeStyle(status) {
-            switch(status) {
-                case 'todo': return { badge: 'bg-indigo-50 text-indigo-600', dot: 'bg-indigo-400', label: 'To Do' };
-                case 'in_progress': return { badge: 'bg-amber-50 text-amber-600', dot: 'bg-amber-500', label: 'In Progress' };
-                case 'done': return { badge: 'bg-emerald-50 text-emerald-600', dot: 'bg-emerald-500', label: 'Done' };
-                case 'dropped': return { badge: 'bg-rose-50 text-rose-600', dot: 'bg-rose-500', label: 'Dropped' };
-                default: return { badge: 'bg-indigo-50 text-indigo-600', dot: 'bg-indigo-400', label: 'To Do' };
-            }
+            return { total, completed, inProgress, dropped, todo };
         }
 
         function deleteProject(id) {
@@ -570,30 +408,11 @@
             projects = projects.filter(p => p.id !== id);
             tasks = tasks.filter(t => t.project !== id);
             if (selectedProjectId === id) {
-                if (projects.length > 0) selectProject(projects[0].id);
-                else selectGlobalPerformance();
+                resetToPromptState();
+            } else {
+                saveDataAndRefresh();
             }
-            saveDataAndRefresh();
             showToast('Project deleted successfully');
-        }
-
-        function changeMonth(dir) {
-            currentMonth += dir;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-            renderProjectWorkspace();
-        }
-
-        function changeYear(dir) {
-            currentYear += dir;
-            selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-            renderProjectWorkspace();
-        }
-
-        function toggleCalendarExpand() {
-            isCalendarExpanded = !isCalendarExpanded;
-            renderProjectWorkspace();
         }
 
         function renderProjectWorkspace() {
@@ -605,9 +424,31 @@
             const workspace = document.getElementById('workspace-body');
             workspace.className = "flex-1 overflow-y-auto p-3 md:p-6 bg-cardBg text-left space-y-4 max-w-4xl mx-auto w-full";
             const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][currentMonth];
+            const m = getTaskMetrics(tasks.filter(t => t.project === proj.id));
 
             workspace.innerHTML = `
+                <!-- Quick Counts Bar -->
+                <div class="grid grid-cols-4 gap-2 bg-canvasBg border border-borderSubtle rounded-xl p-2.5 text-center text-[11px]">
+                    <div class="bg-indigo-50 text-indigo-700 rounded-lg p-1.5 border border-indigo-200">
+                        <span class="block font-bold text-xs">${m.todo}</span>
+                        <span class="text-[10px] text-textSecondary">To Do</span>
+                    </div>
+                    <div class="bg-amber-50 text-amber-700 rounded-lg p-1.5 border border-amber-200">
+                        <span class="block font-bold text-xs">${m.inProgress}</span>
+                        <span class="text-[10px] text-textSecondary">In Progress</span>
+                    </div>
+                    <div class="bg-emerald-50 text-emerald-700 rounded-lg p-1.5 border border-emerald-200">
+                        <span class="block font-bold text-xs">${m.completed}</span>
+                        <span class="text-[10px] text-textSecondary">Done</span>
+                    </div>
+                    <div class="bg-rose-50 text-rose-700 rounded-lg p-1.5 border border-rose-200">
+                        <span class="block font-bold text-xs">${m.dropped}</span>
+                        <span class="text-[10px] text-textSecondary">Dropped</span>
+                    </div>
+                </div>
+
                 <div id="overdue-carried-section" class="space-y-2"></div>
+                
                 <div class="bg-cardBg border border-borderSubtle rounded-2xl p-3 md:p-4 shadow-2xs space-y-3 pt-3">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center space-x-2 min-w-0">
@@ -637,6 +478,7 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="space-y-2.5 pt-2 border-t border-borderSubtle">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
@@ -660,6 +502,23 @@
             `;
             renderOverdueCarriedSection();
             renderProjectTasksForDate();
+        }
+
+        function toggleCalendarExpand() {
+            isCalendarExpanded = !isCalendarExpanded;
+            renderProjectWorkspace();
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderProjectWorkspace();
+        }
+
+        function changeYear(delta) {
+            currentYear += delta;
+            renderProjectWorkspace();
         }
 
         function renderCalendarDays() {
@@ -870,11 +729,10 @@
                 const newProj = { id: 'proj_' + Date.now(), name };
                 projects.push(newProj);
                 selectedProjectId = newProj.id;
-                isGlobalPerfActive = false;
             }
             closeModal('project-modal', 'project-modal-box');
             saveDataAndRefresh();
-            if (!isGlobalPerfActive && selectedProjectId) selectProject(selectedProjectId);
+            if (selectedProjectId) selectProject(selectedProjectId);
             showToast('Project saved successfully');
         }
 
