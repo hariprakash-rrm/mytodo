@@ -18,9 +18,7 @@
                         textSecondary: '#6B7280',
                         accentDark: '#111827'
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                 }
             }
         }
@@ -32,28 +30,12 @@
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
-        .app-window {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03);
-        }
-        .anim-icon-hover:hover i {
-            transform: scale(1.25) rotate(8deg);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .anim-spin-hover:hover i {
-            transform: rotate(180deg);
-            transition: transform 0.4s ease;
-        }
-        .anim-bounce-hover:hover i {
-            animation: bounceIcon 0.6s infinite alternate;
-        }
-        @keyframes bounceIcon {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-3px); }
-        }
-        .dragging {
-            opacity: 0.4;
-            border: 2px dashed #6366f1 !important;
-        }
+        .app-window { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03); }
+        .anim-icon-hover:hover i { transform: scale(1.25) rotate(8deg); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .anim-spin-hover:hover i { transform: rotate(180deg); transition: transform 0.4s ease; }
+        .anim-bounce-hover:hover i { animation: bounceIcon 0.6s infinite alternate; }
+        @keyframes bounceIcon { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
+        .dragging { opacity: 0.4; border: 2px dashed #6366f1 !important; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-0 md:p-6 antialiased text-textPrimary">
@@ -95,9 +77,7 @@
             </div>
 
             <!-- Project List -->
-            <div class="px-4 pb-4 flex-1 overflow-y-auto space-y-1.5" id="projects-sidebar-list">
-                <!-- Injected via JS -->
-            </div>
+            <div class="px-4 pb-4 flex-1 overflow-y-auto space-y-1.5" id="projects-sidebar-list"></div>
 
             <div class="p-4 border-t border-borderSubtle text-center">
                 <span class="text-[11px] text-textSecondary">Select a project or performance view</span>
@@ -138,7 +118,7 @@
                         <span id="live-clock">00:00:00</span>
                     </div>
 
-                    <!-- View Switcher Tabs (Calendar vs Performance) -->
+                    <!-- View Switcher Tabs -->
                     <div id="view-switchers" class="hidden flex items-center space-x-1 bg-canvasBg border border-borderSubtle p-1 rounded-xl shrink-0">
                         <button onclick="switchProjectView('calendar')" id="btn-view-calendar" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 bg-slate-900 text-white shadow-2xs">
                             <i class="fa-regular fa-calendar text-indigo-400 text-[11px]"></i>
@@ -177,7 +157,7 @@
         <div class="bg-cardBg border border-borderSubtle w-full max-w-md rounded-2xl p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="task-modal-box">
             <div class="flex items-center justify-between pb-3 border-b border-borderSubtle mb-4">
                 <h3 id="task-modal-title" class="font-bold text-sm text-accentDark flex items-center space-x-2"><i class="fa-solid fa-circle-plus text-emerald-500"></i><span>Create Task</span></h3>
-                <button onclick="closeTaskModal()" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
+                <button onclick="closeModal('task-modal', 'task-modal-box')" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
             </div>
             <form onsubmit="handleTaskFormSubmit(event)" class="space-y-4">
                 <div>
@@ -208,7 +188,7 @@
                     </select>
                 </div>
                 <div class="flex items-center justify-end space-x-2 pt-3 border-t border-borderSubtle">
-                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Cancel</button>
+                    <button type="button" onclick="closeModal('task-modal', 'task-modal-box')" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Cancel</button>
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white anim-bounce-hover flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-400"></i><span>Save Task</span></button>
                 </div>
             </form>
@@ -220,7 +200,7 @@
         <div class="bg-cardBg border border-borderSubtle w-full max-w-sm rounded-2xl p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="project-modal-box">
             <div class="flex items-center justify-between pb-3 border-b border-borderSubtle mb-4">
                 <h3 id="project-modal-title" class="font-bold text-sm text-accentDark flex items-center space-x-2"><i class="fa-solid fa-folder-plus text-amber-500"></i><span>Create New Project</span></h3>
-                <button onclick="closeProjectModal()" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
+                <button onclick="closeModal('project-modal', 'project-modal-box')" class="hover:opacity-80 anim-icon-hover"><i class="fa-solid fa-xmark text-base text-rose-500"></i></button>
             </div>
             <form onsubmit="handleProjectFormSubmit(event)" class="space-y-4">
                 <div>
@@ -228,14 +208,14 @@
                     <input type="text" id="modal-project-name" required placeholder="e.g., Marketing Campaign" class="w-full bg-canvasBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500">
                 </div>
                 <div class="flex items-center justify-end space-x-2 pt-3 border-t border-borderSubtle">
-                    <button type="button" onclick="closeProjectModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Cancel</button>
+                    <button type="button" onclick="closeModal('project-modal', 'project-modal-box')" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-textSecondary anim-icon-hover">Cancel</button>
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white anim-bounce-hover flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-400"></i><span>Save Project</span></button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- CONTINUOUS ALARM NOTIFICATION MODAL -->
+    <!-- ALARM NOTIFICATION MODAL -->
     <div id="alarm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden opacity-0 transition-opacity duration-200 p-4">
         <div class="bg-cardBg border border-rose-300 w-full max-w-sm rounded-2xl p-6 shadow-2xl transform scale-95 transition-transform duration-200 text-center space-y-4" id="alarm-modal-box">
             <div class="w-14 h-14 rounded-full bg-rose-100 border border-rose-200 flex items-center justify-center mx-auto text-rose-500 text-2xl animate-bounce">
@@ -266,6 +246,7 @@
         let activeProjectView = 'calendar';
         let isCalendarExpanded = false;
         let editingTaskId = null;
+        let editingProjectId = null;
         let projectModalMode = 'add';
         let now = new Date();
         let currentYear = now.getFullYear();
@@ -282,56 +263,39 @@
             localStorage.setItem('orbit_pure_projects', JSON.stringify(projects));
             localStorage.setItem('orbit_pure_tasks', JSON.stringify(tasks));
             renderProjectsSidebar();
-            if (isGlobalPerfActive) {
-                renderGlobalPerformanceView();
-            } else if (selectedProjectId) {
-                renderCurrentProjectView();
-            }
+            if (isGlobalPerfActive) renderGlobalPerformanceView();
+            else if (selectedProjectId) renderCurrentProjectView();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             checkAndCarryOverOverdueTasks();
             renderProjectsSidebar();
-            if (projects.length > 0) {
-                selectProject(projects[0].id);
-            } else {
-                selectGlobalPerformance();
-            }
+            if (projects.length > 0) selectProject(projects[0].id);
+            else selectGlobalPerformance();
             startLiveClock();
             setInterval(checkTaskAlarms, 1000);
         });
 
         function checkAndCarryOverOverdueTasks() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-
+            const todayStr = new Date().toISOString().split('T')[0];
             let updated = false;
             tasks.forEach(task => {
-                if (!task.completed && task.status !== 'done') {
-                    if (task.dueDate && task.dueDate < todayStr) {
-                        task.dueDate = todayStr;
-                        task.isOverdueCarried = true;
-                        updated = true;
-                    }
+                if (!task.completed && task.status !== 'done' && task.dueDate && task.dueDate < todayStr) {
+                    task.dueDate = todayStr;
+                    task.isOverdueCarried = true;
+                    updated = true;
                 }
             });
-
-            if (updated) {
-                localStorage.setItem('orbit_pure_tasks', JSON.stringify(tasks));
-            }
+            if (updated) localStorage.setItem('orbit_pure_tasks', JSON.stringify(tasks));
         }
 
         function startLiveClock() {
-            const clockEl = document.getElementById('live-clock');
-            const clockMobileEl = document.getElementById('live-clock-mobile');
             const update = () => {
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString();
-                if (clockEl) clockEl.innerText = timeStr;
-                if (clockMobileEl) clockMobileEl.innerText = timeStr;
+                const timeStr = new Date().toLocaleTimeString();
+                ['live-clock', 'live-clock-mobile'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = timeStr;
+                });
             };
             update();
             setInterval(update, 1000);
@@ -339,61 +303,35 @@
 
         function checkTaskAlarms() {
             const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const currentDateStr = `${year}-${month}-${day}`;
-            const currentHour = String(now.getHours()).padStart(2, '0');
-            const currentMin = String(now.getMinutes()).padStart(2, '0');
-            const currentTimeStr = `${currentHour}:${currentMin}`;
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
             tasks.forEach(task => {
-                if (!task.completed && task.dueDate === currentDateStr && task.dueTime) {
-                    if (task.dueTime === currentTimeStr && !triggeredAlarmTaskIds.has(task.id)) {
-                        triggeredAlarmTaskIds.add(task.id);
-                        triggerContinuousAlarm(task);
-                    }
+                if (!task.completed && task.dueDate === dateStr && task.dueTime === timeStr && !triggeredAlarmTaskIds.has(task.id)) {
+                    triggeredAlarmTaskIds.add(task.id);
+                    triggerContinuousAlarm(task);
                 }
             });
-        }
-
-        function toggleTaskPin(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                task.isPinned = !task.isPinned;
-                saveDataAndRefresh();
-                showToast(task.isPinned ? 'Task pinned to top' : 'Task unpinned');
-            }
         }
 
         function triggerContinuousAlarm(task) {
             playBeepSound();
             if (continuousAlarmInterval) clearInterval(continuousAlarmInterval);
-            continuousAlarmInterval = setInterval(() => {
-                playBeepSound();
-            }, 1200);
+            continuousAlarmInterval = setInterval(playBeepSound, 1200);
 
             const modal = document.getElementById('alarm-modal');
             const box = document.getElementById('alarm-modal-box');
             document.getElementById('alarm-task-title').innerText = `"${task.title}" (Due at ${task.dueTime})`;
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                box.classList.remove('scale-95');
-                box.classList.add('scale-100');
-            }, 10);
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); box.classList.add('scale-100'); }, 10);
         }
 
         function dismissAlarm() {
-            if (continuousAlarmInterval) {
-                clearInterval(continuousAlarmInterval);
-                continuousAlarmInterval = null;
-            }
+            if (continuousAlarmInterval) { clearInterval(continuousAlarmInterval); continuousAlarmInterval = null; }
             const modal = document.getElementById('alarm-modal');
             const box = document.getElementById('alarm-modal-box');
             modal.classList.add('opacity-0');
-            box.classList.remove('scale-100');
-            box.classList.add('scale-95');
+            box.classList.remove('scale-100'); box.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 200);
         }
 
@@ -402,13 +340,10 @@
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(659.25, ctx.currentTime);
                 gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.35);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.35);
             } catch (e) {}
         }
 
@@ -429,38 +364,28 @@
             const globalBtn = document.getElementById('global-perf-btn');
             if (!listEl) return;
 
-            if (isGlobalPerfActive) {
-                globalBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-slate-900 text-white shadow-2xs transition-all anim-icon-hover";
-            } else {
-                globalBtn.className = "w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-textPrimary hover:bg-slate-100 transition-all anim-icon-hover";
-            }
+            globalBtn.className = `w-full flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all anim-icon-hover ${isGlobalPerfActive ? 'bg-slate-900 text-white shadow-2xs' : 'text-textPrimary hover:bg-slate-100'}`;
 
             if (projects.length === 0) {
-                listEl.innerHTML = `
-                    <div class="p-4 text-center text-textSecondary text-xs">
-                        No projects found. Create one above.
-                    </div>
-                `;
+                listEl.innerHTML = `<div class="p-4 text-center text-textSecondary text-xs">No projects found. Create one above.</div>`;
                 return;
             }
 
             listEl.innerHTML = projects.map(proj => {
                 const count = tasks.filter(t => t.project === proj.id && !t.completed).length;
                 const isSelected = !isGlobalPerfActive && selectedProjectId === proj.id;
-                const projId = proj.id;
-                const projName = escapeHtml(proj.name);
                 return `
                     <div class="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${isSelected ? 'bg-slate-900 text-white shadow-2xs' : 'text-textPrimary hover:bg-slate-100'}">
-                        <button onclick="selectProject('${projId}'); toggleMobileSidebar(true);" class="flex-1 flex items-center space-x-2.5 text-left anim-icon-hover truncate">
+                        <button onclick="selectProject('${proj.id}'); toggleMobileSidebar(true);" class="flex-1 flex items-center space-x-2.5 text-left anim-icon-hover truncate">
                             <i class="fa-regular fa-folder text-amber-500 shrink-0"></i>
-                            <span class="truncate">${projName}</span>
+                            <span class="truncate">${escapeHtml(proj.name)}</span>
                         </button>
                         <div class="flex items-center space-x-1.5 shrink-0">
                             <span class="text-[11px] px-2 py-0.5 rounded-md ${isSelected ? 'bg-white/20 text-white font-bold' : 'bg-slate-100 text-sky-600'}">${count > 0 ? count : ''}</span>
-                            <button onclick="openProjectModal('edit', '${projId}')" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Rename Project">
+                            <button onclick="openProjectModal('edit', '${proj.id}')" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Rename Project">
                                 <i class="fa-regular fa-pen-to-square text-[11px] text-amber-500"></i>
                             </button>
-                            <button onclick="deleteProject('${projId}')" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Delete Project">
+                            <button onclick="deleteProject('${proj.id}')" class="opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 anim-icon-hover" title="Delete Project">
                                 <i class="fa-regular fa-trash-can text-[11px] text-rose-500"></i>
                             </button>
                         </div>
@@ -473,12 +398,7 @@
             selectedProjectId = id;
             isGlobalPerfActive = false;
             renderProjectsSidebar();
-
-            document.getElementById('edit-project-btn').classList.remove('hidden');
-            document.getElementById('view-switchers').classList.remove('hidden');
-            document.getElementById('add-task-header-btn').classList.remove('hidden');
-            document.getElementById('search-container').classList.remove('hidden');
-
+            toggleHeaderVisibility(false);
             renderCurrentProjectView();
         }
 
@@ -486,58 +406,53 @@
             isGlobalPerfActive = true;
             selectedProjectId = null;
             renderProjectsSidebar();
-
             document.getElementById('active-project-title').innerText = 'All Performance';
             document.getElementById('active-project-subtitle').innerText = 'Overview across projects';
-            document.getElementById('edit-project-btn').classList.add('hidden');
-            document.getElementById('view-switchers').classList.add('hidden');
-            document.getElementById('add-task-header-btn').classList.add('hidden');
-            document.getElementById('search-container').classList.add('hidden');
-
+            toggleHeaderVisibility(true);
             renderGlobalPerformanceView();
+        }
+
+        function toggleHeaderVisibility(isGlobal) {
+            document.getElementById('edit-project-btn').classList.toggle('hidden', isGlobal);
+            document.getElementById('view-switchers').classList.toggle('hidden', isGlobal);
+            document.getElementById('add-task-header-btn').classList.toggle('hidden', isGlobal);
+            document.getElementById('search-container').classList.toggle('hidden', isGlobal);
         }
 
         function switchProjectView(view) {
             activeProjectView = view;
-            const btnCal = document.getElementById('btn-view-calendar');
-            const btnPerf = document.getElementById('btn-view-perf');
-
-            btnCal.className = "px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 text-textSecondary hover:text-textPrimary";
-            btnPerf.className = "px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 text-textSecondary hover:text-textPrimary";
-
-            if (view === 'calendar') {
-                btnCal.className = "px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 bg-slate-900 text-white shadow-2xs";
-            } else if (view === 'perf') {
-                btnPerf.className = "px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 bg-slate-900 text-white shadow-2xs";
-            }
-
+            ['calendar', 'perf'].forEach(v => {
+                const btn = document.getElementById(`btn-view-${v}`);
+                btn.className = `px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 ${view === v ? 'bg-slate-900 text-white shadow-2xs' : 'text-textSecondary hover:text-textPrimary'}`;
+            });
             renderCurrentProjectView();
         }
 
         function renderCurrentProjectView() {
-            if (activeProjectView === 'calendar') {
-                renderProjectWorkspace();
-            } else if (activeProjectView === 'perf') {
-                renderProjectPerformanceView();
-            }
+            if (activeProjectView === 'calendar') renderProjectWorkspace();
+            else renderProjectPerformanceView();
+        }
+
+        function getTaskMetrics(pTasks) {
+            const total = pTasks.length;
+            const completed = pTasks.filter(t => t.completed || t.status === 'done').length;
+            const inProgress = pTasks.filter(t => t.status === 'in_progress').length;
+            const dropped = pTasks.filter(t => t.status === 'dropped').length;
+            const todo = total - completed - inProgress - dropped;
+            return {
+                total, completed, inProgress, dropped, todo,
+                completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+                inProgressRate: total > 0 ? Math.round((inProgress / total) * 100) : 0,
+                droppedRate: total > 0 ? Math.round((dropped / total) * 100) : 0
+            };
         }
 
         function renderGlobalPerformanceView() {
             const workspace = document.getElementById('workspace-body');
             workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-4xl mx-auto w-full";
-
-            const totalTasks = tasks.length;
-            const completedTasks = tasks.filter(t => t.completed || t.status === 'done').length;
-            const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-            const droppedTasks = tasks.filter(t => t.status === 'dropped').length;
-            const todoTasks = tasks.filter(t => !t.completed && t.status !== 'in_progress' && t.status !== 'done' && t.status !== 'dropped').length;
-            const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-            const inProgressRate = totalTasks > 0 ? Math.round((inProgressTasks / totalTasks) * 100) : 0;
-            const droppedRate = totalTasks > 0 ? Math.round((droppedTasks / totalTasks) * 100) : 0;
-            const totalProjects = projects.length;
+            const globalMetrics = getTaskMetrics(tasks);
 
             workspace.innerHTML = `
-                <!-- Projects Status Breakdown moved to 1st -->
                 <div class="bg-cardBg border border-borderSubtle rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-2">
@@ -548,40 +463,28 @@
                     </div>
                     <div class="space-y-3">
                         ${projects.length === 0 ? '<p class="text-xs text-textSecondary text-center py-4">No projects available.</p>' : projects.map(p => {
-                            const pTasks = tasks.filter(t => t.project === p.id);
-                            const pTotal = pTasks.length;
-                            const pComp = pTasks.filter(t => t.completed || t.status === 'done').length;
-                            const pInProg = pTasks.filter(t => t.status === 'in_progress').length;
-                            const pDropped = pTasks.filter(t => t.status === 'dropped').length;
-                            const pTodo = pTasks.filter(t => !t.completed && t.status !== 'in_progress' && t.status !== 'done' && t.status !== 'dropped').length;
-                            
-                            const compRate = pTotal > 0 ? Math.round((pComp / pTotal) * 100) : 0;
-                            const inProgRate = pTotal > 0 ? Math.round((pInProg / pTotal) * 100) : 0;
-                            const droppedRate = pTotal > 0 ? Math.round((pDropped / pTotal) * 100) : 0;
-                            const todoRate = pTotal > 0 ? Math.round((pTodo / pTotal) * 100) : 0;
-                            const projId = p.id;
-                            const projName = escapeHtml(p.name);
-
+                            const m = getTaskMetrics(tasks.filter(t => t.project === p.id));
+                            const todoRate = m.total > 0 ? Math.round((m.todo / m.total) * 100) : 0;
                             return `
-                                <div onclick="selectProject('${projId}')" class="space-y-2 p-3.5 rounded-xl bg-canvasBg border border-borderSubtle hover:border-indigo-400 cursor-pointer transition-all">
+                                <div onclick="selectProject('${p.id}')" class="space-y-2 p-3.5 rounded-xl bg-canvasBg border border-borderSubtle hover:border-indigo-400 cursor-pointer transition-all">
                                     <div class="flex justify-between items-center text-xs">
                                         <span class="font-bold text-accentDark flex items-center space-x-2">
                                             <i class="fa-regular fa-folder text-amber-500"></i>
-                                            <span>${projName}</span>
+                                            <span>${escapeHtml(p.name)}</span>
                                         </span>
-                                        <span class="text-xs font-semibold bg-white border border-borderSubtle px-2 py-0.5 rounded-md text-sky-600">${pTotal} tasks</span>
+                                        <span class="text-xs font-semibold bg-white border border-borderSubtle px-2 py-0.5 rounded-md text-sky-600">${m.total} tasks</span>
                                     </div>
                                     <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
-                                        <div class="bg-emerald-500 h-full transition-all duration-500" style="width: ${compRate}%" title="Done: ${pComp}"></div>
-                                        <div class="bg-amber-500 h-full transition-all duration-500" style="width: ${inProgRate}%" title="In Progress: ${pInProg}"></div>
-                                        <div class="bg-rose-400 h-full transition-all duration-500" style="width: ${droppedRate}%" title="Dropped: ${pDropped}"></div>
-                                        <div class="bg-indigo-400 h-full transition-all duration-500" style="width: ${todoRate}%" title="To Do: ${pTodo}"></div>
+                                        <div class="bg-emerald-500 h-full" style="width: ${m.completionRate}%"></div>
+                                        <div class="bg-amber-500 h-full" style="width: ${m.inProgressRate}%"></div>
+                                        <div class="bg-rose-400 h-full" style="width: ${m.droppedRate}%"></div>
+                                        <div class="bg-indigo-400 h-full" style="width: ${todoRate}%"></div>
                                     </div>
                                     <div class="flex items-center justify-between text-[10px] text-textSecondary pt-0.5">
-                                        <span class="text-emerald-600 font-semibold">Done: ${pComp}</span>
-                                        <span class="text-amber-600 font-semibold">Active: ${pInProg}</span>
-                                        <span class="text-rose-600 font-semibold">Dropped: ${pDropped}</span>
-                                        <span class="text-indigo-600 font-semibold">To Do: ${pTodo}</span>
+                                        <span class="text-emerald-600 font-semibold">Done: ${m.completed}</span>
+                                        <span class="text-amber-600 font-semibold">Active: ${m.inProgress}</span>
+                                        <span class="text-rose-600 font-semibold">Dropped: ${m.dropped}</span>
+                                        <span class="text-indigo-600 font-semibold">To Do: ${m.todo}</span>
                                     </div>
                                 </div>
                             `;
@@ -589,43 +492,11 @@
                     </div>
                 </div>
 
-                <!-- Global Metrics Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 md:gap-4">
-                    <div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-200 rounded-2xl p-4 md:p-5 shadow-2xs space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Completion</span>
-                            <i class="fa-solid fa-chart-line text-emerald-500 text-base"></i>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-extrabold text-accentDark">${completionRate}%</h3>
-                        <p class="text-[10px] text-textSecondary">${completedTasks} completed</p>
-                    </div>
-
-                    <div class="bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-200 rounded-2xl p-4 md:p-5 shadow-2xs space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">In Progress</span>
-                            <i class="fa-solid fa-spinner text-amber-600 text-base"></i>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-extrabold text-accentDark">${inProgressTasks}</h3>
-                        <p class="text-[10px] text-textSecondary">${inProgressRate}% active workflow</p>
-                    </div>
-
-                    <div class="bg-gradient-to-br from-rose-500/10 to-pink-500/10 border border-rose-200 rounded-2xl p-4 md:p-5 shadow-2xs space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-rose-600">Dropped</span>
-                            <i class="fa-solid fa-ban text-rose-500 text-base"></i>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-extrabold text-accentDark">${droppedTasks}</h3>
-                        <p class="text-[10px] text-textSecondary">${droppedRate}% canceled plans</p>
-                    </div>
-
-                    <div class="bg-gradient-to-br from-indigo-500/10 to-sky-500/10 border border-indigo-200 rounded-2xl p-4 md:p-5 shadow-2xs space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600">To Do</span>
-                            <i class="fa-solid fa-list-check text-indigo-500 text-base"></i>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-extrabold text-accentDark">${todoTasks}</h3>
-                        <p class="text-[10px] text-textSecondary">Pending execution</p>
-                    </div>
+                    ${renderMetricCard('Completion', globalMetrics.completionRate + '%', globalMetrics.completed + ' completed', 'emerald', 'fa-chart-line')}
+                    ${renderMetricCard('In Progress', globalMetrics.inProgress, globalMetrics.inProgressRate + '% active workflow', 'amber', 'fa-spinner')}
+                    ${renderMetricCard('Dropped', globalMetrics.dropped, globalMetrics.droppedRate + '% canceled plans', 'rose', 'fa-ban')}
+                    ${renderMetricCard('To Do', globalMetrics.todo, 'Pending execution', 'indigo', 'fa-list-check')}
                 </div>
             `;
         }
@@ -633,101 +504,37 @@
         function renderProjectPerformanceView() {
             const proj = projects.find(p => p.id === selectedProjectId);
             if (!proj) return;
-
             const workspace = document.getElementById('workspace-body');
             workspace.className = "flex-1 overflow-y-auto p-4 md:p-8 bg-cardBg text-left space-y-6 max-w-4xl mx-auto w-full";
-
+            const m = getTaskMetrics(tasks.filter(t => t.project === proj.id));
             const pTasks = tasks.filter(t => t.project === proj.id);
-            const total = pTasks.length;
-            const completed = pTasks.filter(t => t.completed || t.status === 'done').length;
-            const inProgress = pTasks.filter(t => t.status === 'in_progress').length;
-            const dropped = pTasks.filter(t => t.status === 'dropped').length;
-            const todo = pTasks.filter(t => !t.completed && t.status !== 'in_progress' && t.status !== 'done' && t.status !== 'dropped').length;
-            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-            const inProgRate = total > 0 ? Math.round((inProgress / total) * 100) : 0;
 
             workspace.innerHTML = `
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 md:gap-6">
-                    <div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Completion</span>
-                            <i class="fa-solid fa-chart-pie text-emerald-500 text-lg"></i>
-                        </div>
-                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${rate}%</h3>
-                        <p class="text-[11px] text-textSecondary">${completed} of ${total} tasks completed</p>
-                    </div>
-
-                    <div class="bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold uppercase tracking-wider text-amber-700">In Progress</span>
-                            <i class="fa-solid fa-spinner text-amber-600 text-lg"></i>
-                        </div>
-                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${inProgress}</h3>
-                        <p class="text-[11px] text-textSecondary">${inProgRate}% active tasks</p>
-                    </div>
-
-                    <div class="bg-gradient-to-br from-rose-500/10 to-pink-500/10 border border-rose-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Dropped</span>
-                            <i class="fa-solid fa-ban text-rose-500 text-lg"></i>
-                        </div>
-                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${dropped}</h3>
-                        <p class="text-[11px] text-textSecondary">Canceled plans</p>
-                    </div>
-
-                    <div class="bg-gradient-to-br from-indigo-500/10 to-sky-500/10 border border-indigo-200 rounded-2xl p-5 md:p-6 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">To Do</span>
-                            <i class="fa-solid fa-clock text-indigo-500 text-lg"></i>
-                        </div>
-                        <h3 class="text-2xl md:text-3xl font-extrabold text-accentDark">${todo}</h3>
-                        <p class="text-[11px] text-textSecondary">Remaining on schedule</p>
-                    </div>
+                    ${renderMetricCard('Completion', m.completionRate + '%', `${m.completed} of ${m.total} tasks completed`, 'emerald', 'fa-chart-pie')}
+                    ${renderMetricCard('In Progress', m.inProgress, m.inProgressRate + '% active tasks', 'amber', 'fa-spinner')}
+                    ${renderMetricCard('Dropped', m.dropped, 'Canceled plans', 'rose', 'fa-ban')}
+                    ${renderMetricCard('To Do', m.todo, 'Remaining on schedule', 'indigo', 'fa-clock')}
                 </div>
-
                 <div class="bg-cardBg border border-borderSubtle rounded-2xl p-5 md:p-6 shadow-2xs space-y-4">
                     <h4 class="font-bold text-xs text-accentDark uppercase tracking-wider flex items-center space-x-2">
-                        <i class="fa-solid fa-list-check text-purple-500"></i>
-                        <span>Task Status List</span>
+                        <i class="fa-solid fa-list-check text-purple-500"></i><span>Task Status List</span>
                     </h4>
                     <div class="space-y-2.5">
-                        ${total === 0 ? '<p class="text-xs text-textSecondary text-center py-4">No tasks found for this project.</p>' : pTasks.map(t => {
+                        ${m.total === 0 ? '<p class="text-xs text-textSecondary text-center py-4">No tasks found for this project.</p>' : pTasks.map(t => {
                             const isDone = t.completed || t.status === 'done';
-                            const isInProg = t.status === 'in_progress';
                             const isDropped = t.status === 'dropped';
-                            let badgeColor = 'bg-indigo-50 text-indigo-600';
-                            let dotColor = 'bg-indigo-400';
-                            let statusLabel = 'To Do';
-
-                            if (isDone) {
-                                badgeColor = 'bg-emerald-50 text-emerald-600';
-                                dotColor = 'bg-emerald-500';
-                                statusLabel = 'Done';
-                            } else if (isInProg) {
-                                badgeColor = 'bg-amber-50 text-amber-600';
-                                dotColor = 'bg-amber-500';
-                                statusLabel = 'In Progress';
-                            } else if (isDropped) {
-                                badgeColor = 'bg-rose-50 text-rose-600';
-                                dotColor = 'bg-rose-500';
-                                statusLabel = 'Dropped';
-                            }
-
+                            const s = getStatusBadgeStyle(t.status || (isDone ? 'done' : 'todo'));
                             return `
                                 <div class="flex items-center justify-between p-3 rounded-xl bg-canvasBg border border-borderSubtle">
-                                    <div class="flex items-center space-x-3 pr-2">
-                                        <span class="w-2.5 h-2.5 rounded-full shrink-0 ${dotColor}"></span>
+                                    <div class="flex items-center space-x-3 pr-2 truncate">
+                                        <span class="w-2.5 h-2.5 rounded-full shrink-0 ${s.dot}"></span>
                                         <div class="truncate">
-                                            <p class="text-xs font-medium text-accentDark truncate ${isDone ? 'line-through text-textSecondary' : (isDropped ? 'line-through text-rose-400' : '')}">${escapeHtml(t.title)}</p>
-                                            <p class="text-[10px] text-textSecondary flex items-center space-x-1.5">
-                                                <span>Due: ${t.dueDate} ${t.dueTime ? 'at ' + t.dueTime : ''}</span>
-                                                ${t.isOverdueCarried ? '<span class="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200"><i class="fa-solid fa-triangle-exclamation mr-0.5"></i>Overdue Carried</span>' : ''}
-                                            </p>
+                                            <p class="text-xs font-medium text-accentDark truncate ${isDone || isDropped ? 'line-through text-textSecondary' : ''}">${escapeHtml(t.title)}</p>
+                                            <p class="text-[10px] text-textSecondary">Due: ${t.dueDate} ${t.dueTime ? 'at ' + t.dueTime : ''}</p>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] px-2.5 py-1 rounded-md font-semibold shrink-0 ${badgeColor}">
-                                        ${statusLabel}
-                                    </span>
+                                    <span class="text-[11px] px-2.5 py-1 rounded-md font-semibold shrink-0 ${s.badge}">${s.label}</span>
                                 </div>
                             `;
                         }).join('')}
@@ -736,48 +543,51 @@
             `;
         }
 
+        function renderMetricCard(title, value, subtitle, color, icon) {
+            return `
+                <div class="bg-gradient-to-br from-${color}-500/10 to-${color}-600/10 border border-${color}-200 rounded-2xl p-4 md:p-5 shadow-2xs space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-${color}-600">${title}</span>
+                        <i class="fa-solid ${icon} text-${color}-500 text-base"></i>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-extrabold text-accentDark">${value}</h3>
+                    <p class="text-[10px] text-textSecondary">${subtitle}</p>
+                </div>
+            `;
+        }
+
+        function getStatusBadgeStyle(status) {
+            switch(status) {
+                case 'done': return { badge: 'bg-emerald-50 text-emerald-600', dot: 'bg-emerald-500', label: 'Done' };
+                case 'in_progress': return { badge: 'bg-amber-50 text-amber-600', dot: 'bg-amber-500', label: 'In Progress' };
+                case 'dropped': return { badge: 'bg-rose-50 text-rose-600', dot: 'bg-rose-500', label: 'Dropped' };
+                default: return { badge: 'bg-indigo-50 text-indigo-600', dot: 'bg-indigo-400', label: 'To Do' };
+            }
+        }
+
         function deleteProject(id) {
             if (!confirm('Are you sure you want to delete this project and all its tasks?')) return;
             projects = projects.filter(p => p.id !== id);
             tasks = tasks.filter(t => t.project !== id);
             if (selectedProjectId === id) {
-                if (projects.length > 0) {
-                    selectProject(projects[0].id);
-                } else {
-                    selectedProjectId = null;
-                    document.getElementById('active-project-title').innerText = 'No Project Selected';
-                    document.getElementById('active-project-subtitle').innerText = 'Create or select a project';
-                    document.getElementById('edit-project-btn').classList.add('hidden');
-                    document.getElementById('view-switchers').classList.add('hidden');
-                    document.getElementById('add-task-header-btn').classList.add('hidden');
-                    document.getElementById('workspace-body').innerHTML = `
-                        <i class="fa-regular fa-folder-open text-4xl mb-3 text-amber-500 animate-pulse"></i>
-                        <p class="text-sm font-medium">Please select or create a project from the left sidebar to view its calendar and task list.</p>
-                    `;
-                }
+                if (projects.length > 0) selectProject(projects[0].id);
+                else selectGlobalPerformance();
             }
             saveDataAndRefresh();
             showToast('Project deleted successfully');
         }
 
-        function changeMonth(direction) {
-            currentMonth += direction;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            } else if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            const monthStr = String(currentMonth + 1).padStart(2, '0');
-            selectedCalendarDate = `${currentYear}-${monthStr}-01`;
+        function changeMonth(dir) {
+            currentMonth += dir;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
             renderProjectWorkspace();
         }
 
-        function changeYear(direction) {
-            currentYear += direction;
-            const monthStr = String(currentMonth + 1).padStart(2, '0');
-            selectedCalendarDate = `${currentYear}-${monthStr}-01`;
+        function changeYear(dir) {
+            currentYear += dir;
+            selectedCalendarDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
             renderProjectWorkspace();
         }
 
@@ -789,128 +599,94 @@
         function renderProjectWorkspace() {
             const proj = projects.find(p => p.id === selectedProjectId);
             if (!proj) return;
-
             document.getElementById('active-project-title').innerText = proj.name;
             document.getElementById('active-project-subtitle').innerText = `Managing schedule for ${proj.name}`;
 
             const workspace = document.getElementById('workspace-body');
             workspace.className = "flex-1 overflow-y-auto p-3 md:p-6 bg-cardBg text-left space-y-4 max-w-4xl mx-auto w-full";
+            const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][currentMonth];
 
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const currentMonthName = monthNames[currentMonth];
-
-            let html = `
-                <!-- 1. OVERDUE CARRIED TASKS SECTION (TOP PROMINENT) -->
+            workspace.innerHTML = `
                 <div id="overdue-carried-section" class="space-y-2"></div>
-
-                <!-- 2. COLLAPSIBLE CALENDAR SECTION -->
                 <div class="bg-cardBg border border-borderSubtle rounded-2xl p-3 md:p-4 shadow-2xs space-y-3 pt-3">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center space-x-2 min-w-0">
                             <i class="fa-regular fa-calendar text-rose-500 shrink-0"></i>
-                            <span class="font-bold text-xs text-accentDark truncate">${currentMonthName} ${currentYear}</span>
+                            <span class="font-bold text-xs text-accentDark truncate">${monthName} ${currentYear}</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="toggleCalendarExpand()" class="bg-slate-100 hover:bg-slate-200 text-textPrimary px-3 py-1.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover">
-                                <i class="fa-solid ${isCalendarExpanded ? 'fa-chevron-up text-amber-500' : 'fa-chevron-down text-indigo-500'}"></i>
-                                <span>${isCalendarExpanded ? 'Close' : 'Expand'}</span>
-                            </button>
-                        </div>
+                        <button onclick="toggleCalendarExpand()" class="bg-slate-100 hover:bg-slate-200 text-textPrimary px-3 py-1.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition-all anim-icon-hover">
+                            <i class="fa-solid ${isCalendarExpanded ? 'fa-chevron-up text-amber-500' : 'fa-chevron-down text-indigo-500'}"></i>
+                            <span>${isCalendarExpanded ? 'Close' : 'Expand'}</span>
+                        </button>
                     </div>
-
                     <div class="${isCalendarExpanded ? 'block' : 'hidden'} space-y-2.5 pt-3 border-t border-borderSubtle transition-all">
                         <div class="flex items-center justify-between px-1">
                             <div class="flex items-center space-x-1">
-                                <button onclick="changeYear(-1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Year"><i class="fa-solid fa-angles-left text-indigo-500"></i></button>
-                                <button onclick="changeYear(1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Year"><i class="fa-solid fa-angles-right text-indigo-500"></i></button>
+                                <button onclick="changeYear(-1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover"><i class="fa-solid fa-angles-left text-indigo-500"></i></button>
+                                <button onclick="changeYear(1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover"><i class="fa-solid fa-angles-right text-indigo-500"></i></button>
                             </div>
-                            <span class="text-xs font-bold text-accentDark">${currentMonthName} ${currentYear}</span>
+                            <span class="text-xs font-bold text-accentDark">${monthName} ${currentYear}</span>
                             <div class="flex items-center space-x-1">
-                                <button onclick="changeMonth(-1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Previous Month"><i class="fa-solid fa-chevron-left text-indigo-500"></i></button>
-                                <button onclick="changeMonth(1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover" title="Next Month"><i class="fa-solid fa-chevron-right text-indigo-500"></i></button>
+                                <button onclick="changeMonth(-1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover"><i class="fa-solid fa-chevron-left text-indigo-500"></i></button>
+                                <button onclick="changeMonth(1)" class="w-6 h-6 rounded bg-canvasBg border border-borderSubtle hover:bg-slate-200 flex items-center justify-center text-[10px] anim-icon-hover"><i class="fa-solid fa-chevron-right text-indigo-500"></i></button>
                             </div>
                         </div>
-                        
                         <div class="grid grid-cols-7 gap-1 text-center text-[10px] md:text-[11px] w-full max-w-sm mx-auto">
-                            <span class="font-bold text-textSecondary py-1">Mo</span>
-                            <span class="font-bold text-textSecondary py-1">Tu</span>
-                            <span class="font-bold text-textSecondary py-1">We</span>
-                            <span class="font-bold text-textSecondary py-1">Th</span>
-                            <span class="font-bold text-textSecondary py-1">Fr</span>
-                            <span class="font-bold text-textSecondary py-1">Sa</span>
-                            <span class="font-bold text-textSecondary py-1">Su</span>
-            `;
-
-            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
-            const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            for (let i = 0; i < adjustedFirstDay; i++) {
-                html += `<div></div>`;
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayStr = String(day).padStart(2, '0');
-                const monthStr = String(currentMonth + 1).padStart(2, '0');
-                const dateKey = `${currentYear}-${monthStr}-${dayStr}`;
-                const isSelected = selectedCalendarDate === dateKey;
-                const hasTask = tasks.some(t => t.project === selectedProjectId && t.dueDate === dateKey && !t.completed);
-
-                html += `
-                    <div onclick="selectCalendarDate('${dateKey}')" class="h-8 md:h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer border transition-all ${isSelected ? 'bg-slate-900 text-white border-slate-900 font-bold shadow-2xs scale-105' : 'bg-canvasBg border-borderSubtle hover:border-indigo-300 text-textPrimary hover:scale-105'}">
-                        <span class="text-[10px] md:text-xs leading-none">${day}</span>
-                        <span class="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full mt-1 ${hasTask ? (isSelected ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-transparent'}"></span>
-                    </div>
-                `;
-            }
-
-            html += `
+                            ${['Mo','Tu','We','Th','Fr','Sa','Su'].map(d => `<span class="font-bold text-textSecondary py-1">${d}</span>`).join('')}
+                            ${renderCalendarDays()}
                         </div>
                     </div>
                 </div>
-
-                <!-- 3. TODAY'S TASKS SECTION -->
                 <div class="space-y-2.5 pt-2 border-t border-borderSubtle">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-textSecondary flex items-center space-x-1.5"><i class="fa-solid fa-tasks text-teal-500"></i><span>Tasks on ${selectedCalendarDate}</span></h4>
                         <div class="flex items-center space-x-2 flex-wrap">
-                            <!-- Status Filter Dropdown -->
-                            <select id="task-status-filter" onchange="updateTaskStatusFilter(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <select id="task-status-filter" onchange="taskStatusFilter=this.value; renderProjectTasksForDate();" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none">
                                 <option value="all" ${taskStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
                                 <option value="todo" ${taskStatusFilter === 'todo' ? 'selected' : ''}>To Do</option>
                                 <option value="in_progress" ${taskStatusFilter === 'in_progress' ? 'selected' : ''}>In Progress</option>
                                 <option value="done" ${taskStatusFilter === 'done' ? 'selected' : ''}>Done</option>
                                 <option value="dropped" ${taskStatusFilter === 'dropped' ? 'selected' : ''}>Dropped</option>
                             </select>
-
-                            <!-- Date Sort Dropdown -->
-                            <select id="task-date-sort" onchange="updateTaskDateSort(this.value)" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="asc" ${taskDateSort === 'asc' ? 'selected' : ''}>Date: Asc (Oldest)</option>
-                                <option value="desc" ${taskDateSort === 'desc' ? 'selected' : ''}>Date: Desc (Newest)</option>
+                            <select id="task-date-sort" onchange="taskDateSort=this.value; renderProjectTasksForDate();" class="bg-canvasBg border border-borderSubtle text-[11px] font-semibold text-textPrimary rounded-lg px-2.5 py-1 focus:outline-none">
+                                <option value="asc" ${taskDateSort === 'asc' ? 'selected' : ''}>Date: Asc</option>
+                                <option value="desc" ${taskDateSort === 'desc' ? 'selected' : ''}>Date: Desc</option>
                             </select>
-
                             <span class="text-[11px] font-semibold bg-slate-100 text-sky-600 px-2 py-0.5 rounded-md" id="date-tasks-count">0 tasks</span>
                         </div>
                     </div>
                     <div id="project-tasks-list" class="space-y-2"></div>
                 </div>
             `;
-
-            workspace.innerHTML = html;
             renderOverdueCarriedSection();
             renderProjectTasksForDate();
+        }
+
+        function renderCalendarDays() {
+            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+            const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            let html = '';
+            for (let i = 0; i < adjustedFirstDay; i++) html += `<div></div>`;
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isSelected = selectedCalendarDate === dateKey;
+                const hasTask = tasks.some(t => t.project === selectedProjectId && t.dueDate === dateKey && !t.completed);
+                html += `
+                    <div onclick="selectedCalendarDate='${dateKey}'; renderProjectWorkspace();" class="h-8 md:h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer border transition-all ${isSelected ? 'bg-slate-900 text-white border-slate-900 font-bold shadow-2xs scale-105' : 'bg-canvasBg border-borderSubtle hover:border-indigo-300 text-textPrimary hover:scale-105'}">
+                        <span class="text-[10px] md:text-xs leading-none">${day}</span>
+                        <span class="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full mt-1 ${hasTask ? (isSelected ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-transparent'}"></span>
+                    </div>
+                `;
+            }
+            return html;
         }
 
         function renderOverdueCarriedSection() {
             const container = document.getElementById('overdue-carried-section');
             if (!container) return;
-
             const overdueTasks = tasks.filter(t => t.project === selectedProjectId && t.isOverdueCarried && !t.completed && t.status !== 'done');
-
-            if (overdueTasks.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
+            if (overdueTasks.length === 0) { container.innerHTML = ''; return; }
 
             container.innerHTML = `
                 <div class="bg-rose-50 border border-rose-300 rounded-2xl p-4 shadow-sm space-y-2.5">
@@ -922,58 +698,10 @@
                         <span class="text-[10px] font-semibold bg-rose-200 text-rose-800 px-2 py-0.5 rounded-md">Action Required</span>
                     </div>
                     <div class="space-y-2">
-                        ${overdueTasks.map(task => {
-                            const taskId = task.id;
-                            const isDone = task.completed || task.status === 'done';
-                            const currentStatus = task.status || 'todo';
-                            let dropdownColorClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-                            if (currentStatus === 'done') dropdownColorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                            else if (currentStatus === 'in_progress') dropdownColorClass = 'bg-amber-50 text-amber-700 border-amber-200';
-
-                            return `
-                                <div class="bg-white border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all">
-                                    <div class="flex items-center space-x-3 pr-2 truncate">
-                                        <button onclick="toggleTaskCompletion('${taskId}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0 transition-transform active:scale-90">
-                                            ${isDone ? '<i class="fa-solid fa-check text-[10px] text-emerald-600"></i>' : ''}
-                                        </button>
-                                        <div class="truncate">
-                                            <div class="flex items-center space-x-2">
-                                                <p class="text-xs font-medium text-accentDark truncate ${isDone ? 'line-through text-textSecondary' : ''}">${escapeHtml(task.title)}</p>
-                                                ${task.dueTime ? `<span class="text-[10px] bg-rose-50 text-rose-600 font-semibold px-2 py-0.5 rounded-md shrink-0"><i class="fa-regular fa-clock mr-1"></i>${task.dueTime}</span>` : ''}
-                                            </div>
-                                            ${task.description ? `<p class="text-[11px] text-textSecondary truncate">${escapeHtml(task.description)}</p>` : ''}
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-2 shrink-0">
-                                        <select id="status-select-${taskId}" onchange="updateTaskStatusDropdown('${taskId}', this.value)" class="border text-[11px] rounded-lg px-2.5 py-1 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all ${dropdownColorClass}">
-                                            <option value="todo" ${currentStatus === 'todo' ? 'selected' : ''}>To Do</option>
-                                            <option value="in_progress" ${currentStatus === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                            <option value="done" ${currentStatus === 'done' ? 'selected' : ''}>Done</option>
-                                        </select>
-                                        <button onclick="openTaskModal('edit', '${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Edit Task"><i class="fa-regular fa-pen-to-square text-amber-500"></i></button>
-                                        <button onclick="deleteTask('${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Delete Task"><i class="fa-regular fa-trash-can text-rose-500"></i></button>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
+                        ${overdueTasks.map(t => renderTaskItemHTML(t)).join('')}
                     </div>
                 </div>
             `;
-        }
-
-        function selectCalendarDate(dateKey) {
-            selectedCalendarDate = dateKey;
-            renderProjectWorkspace();
-        }
-
-        function updateTaskStatusFilter(val) {
-            taskStatusFilter = val;
-            renderProjectTasksForDate();
-        }
-
-        function updateTaskDateSort(val) {
-            taskDateSort = val;
-            renderProjectTasksForDate();
         }
 
         function renderProjectTasksForDate() {
@@ -982,210 +710,123 @@
             if (!listEl) return;
 
             let filtered = tasks.filter(t => t.project === selectedProjectId && t.dueDate === selectedCalendarDate);
-            
-            if (searchQuery) {
-                filtered = filtered.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
-            }
-
-            if (taskStatusFilter !== 'all') {
-                filtered = filtered.filter(t => {
-                    const status = t.status || (t.completed ? 'done' : 'todo');
-                    return status === taskStatusFilter;
-                });
-            }
+            if (searchQuery) filtered = filtered.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
+            if (taskStatusFilter !== 'all') filtered = filtered.filter(t => (t.status || (t.completed ? 'done' : 'todo')) === taskStatusFilter);
 
             filtered.sort((a, b) => {
-                if (a.isPinned && !b.isPinned) return -1;
-                if (!a.isPinned && b.isPinned) return 1;
-
-                if (a.order !== undefined && b.order !== undefined) {
-                    return a.order - b.order;
-                }
-
-                const timeA = a.dueTime || '00:00';
-                const timeB = b.dueTime || '00:00';
-                const compA = `${a.dueDate} ${timeA}`;
-                const compB = `${b.dueDate} ${timeB}`;
-                if (taskDateSort === 'asc') {
-                    return compA.localeCompare(compB);
-                } else {
-                    return compB.localeCompare(compA);
-                }
+                if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+                if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+                const compA = `${a.dueDate} ${a.dueTime || '00:00'}`;
+                const compB = `${b.dueDate} ${b.dueTime || '00:00'}`;
+                return taskDateSort === 'asc' ? compA.localeCompare(compB) : compB.localeCompare(compA);
             });
 
             if (countEl) countEl.innerText = `${filtered.length} tasks`;
+            listEl.innerHTML = filtered.length === 0 ? `<div class="bg-canvasBg border border-borderSubtle rounded-xl p-5 text-center text-textSecondary text-xs">No tasks match the selected filters for ${selectedCalendarDate}.</div>` : filtered.map(t => renderTaskItemHTML(t)).join('');
+        }
 
-            if (filtered.length === 0) {
-                listEl.innerHTML = `
-                    <div class="bg-canvasBg border border-borderSubtle rounded-xl p-5 text-center text-textSecondary text-xs">
-                        No tasks match the selected filters for ${selectedCalendarDate}.
-                    </div>
-                `;
-                return;
-            }
+        function renderTaskItemHTML(task) {
+            const isDone = task.completed || task.status === 'done';
+            const status = task.status || (isDone ? 'done' : 'todo');
+            const isDropped = status === 'dropped';
+            const isPinned = task.isPinned || false;
+            let dropdownColorClass = status === 'done' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (status === 'in_progress' ? 'bg-amber-50 text-amber-700 border-amber-200' : (status === 'dropped' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'));
 
-            listEl.innerHTML = filtered.map((task, index) => {
-                const isDone = task.completed || task.status === 'done';
-                const currentStatus = task.status || (isDone ? 'done' : 'todo');
-                const isDropped = currentStatus === 'dropped';
-                const isPinned = task.isPinned || false;
-                const taskId = task.id;
-                
-                let dropdownColorClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-                if (currentStatus === 'done') {
-                    dropdownColorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                } else if (currentStatus === 'in_progress') {
-                    dropdownColorClass = 'bg-amber-50 text-amber-700 border-amber-200';
-                } else if (currentStatus === 'dropped') {
-                    dropdownColorClass = 'bg-rose-50 text-rose-700 border-rose-200';
-                }
-
-                return `
-                    <div draggable="true" 
-                         ondragstart="handleDragStart(event, '${taskId}')" 
-                         ondragover="handleDragOver(event)" 
-                         ondrop="handleDrop(event, '${taskId}')" 
-                         ondragend="handleDragEnd(event)"
-                         id="task-card-${taskId}"
-                         class="bg-cardBg border ${isPinned ? 'border-amber-400 bg-amber-50/20' : 'border-borderSubtle'} hover:border-indigo-300 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all cursor-grab active:cursor-grabbing">
-                        <div class="flex items-center space-x-3 pr-2 truncate">
-                            <span class="text-textSecondary hover:text-textPrimary text-xs cursor-grab" title="Drag to reorder"><i class="fa-solid fa-grip-vertical"></i></span>
-                            <button onclick="toggleTaskCompletion('${taskId}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0 transition-transform active:scale-90">
-                                ${isDone ? '<i class="fa-solid fa-check text-[10px] text-emerald-600"></i>' : ''}
-                            </button>
-                            <div class="truncate">
-                                <div class="flex items-center space-x-2">
-                                    ${isPinned ? '<i class="fa-solid fa-thumbtack text-amber-500 text-[10px] shrink-0" title="Pinned"></i>' : ''}
-                                    <p class="text-xs font-medium text-textPrimary truncate ${isDone ? 'line-through text-textSecondary' : (isDropped ? 'line-through text-rose-400' : '')}">${escapeHtml(task.title)}</p>
-                                    ${task.dueTime ? `<span class="text-[10px] bg-rose-50 text-rose-600 font-semibold px-2 py-0.5 rounded-md shrink-0"><i class="fa-regular fa-clock mr-1"></i>${task.dueTime}</span>` : ''}
-                                </div>
-                                ${task.description ? `<p class="text-[11px] text-textSecondary truncate">${escapeHtml(task.description)}</p>` : ''}
+            return `
+                <div draggable="true" ondragstart="handleDragStart(event, '${task.id}')" ondragover="event.preventDefault()" ondrop="handleDrop(event, '${task.id}')" ondragend="event.target.classList.remove('dragging')"
+                     class="bg-cardBg border ${isPinned ? 'border-amber-400 bg-amber-50/20' : 'border-borderSubtle'} hover:border-indigo-300 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs transition-all cursor-grab active:cursor-grabbing">
+                    <div class="flex items-center space-x-3 pr-2 truncate">
+                        <span class="text-textSecondary text-xs"><i class="fa-solid fa-grip-vertical"></i></span>
+                        <button onclick="toggleTaskCompletion('${task.id}')" class="w-5 h-5 rounded-full border border-borderSubtle hover:border-emerald-600 flex items-center justify-center bg-canvasBg shrink-0">
+                            ${isDone ? '<i class="fa-solid fa-check text-[10px] text-emerald-600"></i>' : ''}
+                        </button>
+                        <div class="truncate">
+                            <div class="flex items-center space-x-2">
+                                ${isPinned ? '<i class="fa-solid fa-thumbtack text-amber-500 text-[10px] shrink-0"></i>' : ''}
+                                <p class="text-xs font-medium text-textPrimary truncate ${isDone || isDropped ? 'line-through text-textSecondary' : ''}">${escapeHtml(task.title)}</p>
+                                ${task.dueTime ? `<span class="text-[10px] bg-rose-50 text-rose-600 font-semibold px-2 py-0.5 rounded-md shrink-0"><i class="fa-regular fa-clock mr-1"></i>${task.dueTime}</span>` : ''}
                             </div>
-                        </div>
-                        <div class="flex items-center space-x-2 shrink-0">
-                            <select id="status-select-${taskId}" onchange="updateTaskStatusDropdown('${taskId}', this.value)" class="border text-[11px] rounded-lg px-2.5 py-1 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all ${dropdownColorClass}">
-                                <option value="todo" ${currentStatus === 'todo' ? 'selected' : ''}>To Do</option>
-                                <option value="in_progress" ${currentStatus === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                <option value="done" ${currentStatus === 'done' ? 'selected' : ''}>Done</option>
-                                <option value="dropped" ${currentStatus === 'dropped' ? 'selected' : ''}>Dropped</option>
-                            </select>
-
-                            <button onclick="toggleTaskPin('${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="${isPinned ? 'Unpin Task' : 'Pin Task'}"><i class="fa-solid fa-thumbtack ${isPinned ? 'text-amber-500' : 'text-textSecondary'}"></i></button>
-                            <button onclick="openTaskModal('edit', '${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Edit Task"><i class="fa-regular fa-pen-to-square text-amber-500"></i></button>
-                            <button onclick="deleteTask('${taskId}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Delete Task"><i class="fa-regular fa-trash-can text-rose-500"></i></button>
+                            ${task.description ? `<p class="text-[11px] text-textSecondary truncate">${escapeHtml(task.description)}</p>` : ''}
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <select onchange="updateTaskStatusDropdown('${task.id}', this.value)" class="border text-[11px] rounded-lg px-2.5 py-1 font-semibold focus:outline-none ${dropdownColorClass}">
+                            <option value="todo" ${status === 'todo' ? 'selected' : ''}>To Do</option>
+                            <option value="in_progress" ${status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="done" ${status === 'done' ? 'selected' : ''}>Done</option>
+                            <option value="dropped" ${status === 'dropped' ? 'selected' : ''}>Dropped</option>
+                        </select>
+                        <button onclick="toggleTaskPin('${task.id}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Pin"><i class="fa-solid fa-thumbtack ${isPinned ? 'text-amber-500' : 'text-textSecondary'}"></i></button>
+                        <button onclick="openTaskModal('edit', '${task.id}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Edit"><i class="fa-regular fa-pen-to-square text-amber-500"></i></button>
+                        <button onclick="deleteTask('${task.id}')" class="hover:opacity-80 text-xs anim-icon-hover p-1" title="Delete"><i class="fa-regular fa-trash-can text-rose-500"></i></button>
+                    </div>
+                </div>
+            `;
         }
 
-        function handleDragStart(e, id) {
-            draggedTaskId = id;
-            e.target.classList.add('dragging');
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-        }
-
+        function handleDragStart(e, id) { draggedTaskId = id; e.target.classList.add('dragging'); }
         function handleDrop(e, targetId) {
             e.preventDefault();
             if (!draggedTaskId || draggedTaskId === targetId) return;
-
             const dayTasks = tasks.filter(t => t.project === selectedProjectId && t.dueDate === selectedCalendarDate);
-            const draggedIdx = dayTasks.findIndex(t => t.id === draggedTaskId);
-            const targetIdx = dayTasks.findIndex(t => t.id === targetId);
-
-            if (draggedIdx > -1 && targetIdx > -1) {
-                const [removed] = dayTasks.splice(draggedIdx, 1);
-                dayTasks.splice(targetIdx, 0, removed);
-
-                dayTasks.forEach((t, idx) => {
-                    t.order = idx;
-                });
+            const fromIdx = dayTasks.findIndex(t => t.id === draggedTaskId);
+            const toIdx = dayTasks.findIndex(t => t.id === targetId);
+            if (fromIdx > -1 && toIdx > -1) {
+                const [moved] = dayTasks.splice(fromIdx, 1);
+                dayTasks.splice(toIdx, 0, moved);
+                dayTasks.forEach((t, idx) => t.order = idx);
                 saveDataAndRefresh();
             }
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-            draggedTaskId = null;
         }
 
         function toggleTaskCompletion(id) {
             const task = tasks.find(t => t.id === id);
-            if (task) {
-                task.completed = !task.completed;
-                task.status = task.completed ? 'done' : 'todo';
-                saveDataAndRefresh();
-                showToast(task.completed ? 'Task marked as done' : 'Task marked as pending');
-            }
+            if (task) { task.completed = !task.completed; task.status = task.completed ? 'done' : 'todo'; saveDataAndRefresh(); showToast('Task updated'); }
         }
 
-        function updateTaskStatusDropdown(id, newStatus) {
+        function updateTaskStatusDropdown(id, val) {
             const task = tasks.find(t => t.id === id);
-            if (task) {
-                task.status = newStatus;
-                task.completed = (newStatus === 'done');
-                saveDataAndRefresh();
-                showToast(`Task status updated to ${newStatus.replace('_', ' ')}`);
-            }
+            if (task) { task.status = val; task.completed = (val === 'done'); saveDataAndRefresh(); showToast('Status updated'); }
+        }
+
+        function toggleTaskPin(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) { task.isPinned = !task.isPinned; saveDataAndRefresh(); showToast(task.isPinned ? 'Task pinned' : 'Task unpinned'); }
         }
 
         function deleteTask(id) {
-            if (!confirm('Are you sure you want to delete this task?')) return;
+            if (!confirm('Delete this task?')) return;
             tasks = tasks.filter(t => t.id !== id);
             saveDataAndRefresh();
-            showToast('Task deleted successfully');
+            showToast('Task deleted');
         }
 
-        function handleSearch(val) {
-            searchQuery = val.trim();
-            if (selectedProjectId) {
-                renderProjectTasksForDate();
-            }
+        function handleSearch(val) { searchQuery = val.trim(); if (selectedProjectId) renderProjectTasksForDate(); }
+
+        function openModal(modalId, boxId) {
+            const modal = document.getElementById(modalId);
+            const box = document.getElementById(boxId);
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); box.classList.add('scale-100'); }, 10);
+        }
+
+        function closeModal(modalId, boxId) {
+            const modal = document.getElementById(modalId);
+            const box = document.getElementById(boxId);
+            modal.classList.add('opacity-0'); box.classList.remove('scale-100'); box.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 200);
         }
 
         function openTaskModal(mode, id = null) {
             editingTaskId = id;
-            const modal = document.getElementById('task-modal');
-            const box = document.getElementById('task-modal-box');
-            const titleEl = document.getElementById('task-modal-title');
-            
-            if (mode === 'add') {
-                titleEl.innerHTML = '<i class="fa-solid fa-circle-plus text-emerald-500"></i><span>Create Task</span>';
-                document.getElementById('modal-task-title').value = '';
-                document.getElementById('modal-task-desc').value = '';
-                document.getElementById('modal-task-date').value = selectedCalendarDate;
-                document.getElementById('modal-task-time').value = '';
-                document.getElementById('modal-task-status').value = 'todo';
-            } else {
-                titleEl.innerHTML = '<i class="fa-regular fa-pen-to-square text-amber-500"></i><span>Edit Task</span>';
-                const task = tasks.find(t => t.id === id);
-                if (task) {
-                    document.getElementById('modal-task-title').value = task.title;
-                    document.getElementById('modal-task-desc').value = task.description || '';
-                    document.getElementById('modal-task-date').value = task.dueDate || selectedCalendarDate;
-                    document.getElementById('modal-task-time').value = task.dueTime || '';
-                    document.getElementById('modal-task-status').value = task.status || (task.completed ? 'done' : 'todo');
-                }
-            }
-
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                box.classList.remove('scale-95');
-                box.classList.add('scale-100');
-            }, 10);
-        }
-
-        function closeTaskModal() {
-            const modal = document.getElementById('task-modal');
-            const box = document.getElementById('task-modal-box');
-            modal.classList.add('opacity-0');
-            box.classList.remove('scale-100');
-            box.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 200);
+            document.getElementById('task-modal-title').innerHTML = mode === 'add' ? '<i class="fa-solid fa-circle-plus text-emerald-500"></i><span>Create Task</span>' : '<i class="fa-regular fa-pen-to-square text-amber-500"></i><span>Edit Task</span>';
+            const task = mode === 'edit' ? tasks.find(t => t.id === id) : null;
+            document.getElementById('modal-task-title').value = task ? task.title : '';
+            document.getElementById('modal-task-desc').value = task ? task.description || '' : '';
+            document.getElementById('modal-task-date').value = task ? task.dueDate : selectedCalendarDate;
+            document.getElementById('modal-task-time').value = task ? task.dueTime || '' : '';
+            document.getElementById('modal-task-status').value = task ? task.status || (task.completed ? 'done' : 'todo') : 'todo';
+            openModal('task-modal', 'task-modal-box');
         }
 
         function handleTaskFormSubmit(e) {
@@ -1195,78 +836,26 @@
             const date = document.getElementById('modal-task-date').value;
             const time = document.getElementById('modal-task-time').value;
             const status = document.getElementById('modal-task-status').value;
-
             if (!title) return;
 
             if (editingTaskId) {
                 const task = tasks.find(t => t.id === editingTaskId);
-                if (task) {
-                    task.title = title;
-                    task.description = desc;
-                    task.dueDate = date;
-                    task.dueTime = time;
-                    task.status = status;
-                    task.completed = (status === 'done');
-                }
-                showToast('Task updated successfully');
+                if (task) Object.assign(task, { title, description: desc, dueDate: date, dueTime: time, status, completed: (status === 'done') });
             } else {
-                const newTask = {
-                    id: 'task_' + Date.now(),
-                    project: selectedProjectId,
-                    title: title,
-                    description: desc,
-                    dueDate: date || selectedCalendarDate,
-                    dueTime: time,
-                    status: status,
-                    completed: (status === 'done'),
-                    isPinned: false,
-                    isOverdueCarried: false,
-                    order: tasks.length
-                };
-                tasks.push(newTask);
-                showToast('Task created successfully');
+                tasks.push({ id: 'task_' + Date.now(), project: selectedProjectId, title, description: desc, dueDate: date || selectedCalendarDate, dueTime: time, status, completed: (status === 'done'), isPinned: false, isOverdueCarried: false, order: tasks.length });
             }
-
-            closeTaskModal();
+            closeModal('task-modal', 'task-modal-box');
             saveDataAndRefresh();
+            showToast('Task saved successfully');
         }
 
         function openProjectModal(mode, id = null) {
             projectModalMode = mode;
             editingProjectId = id;
-            const modal = document.getElementById('project-modal');
-            const box = document.getElementById('project-modal-box');
-            const titleEl = document.getElementById('project-modal-title');
-            const nameInput = document.getElementById('modal-project-name');
-
-            if (mode === 'add') {
-                titleEl.innerHTML = '<i class="fa-solid fa-folder-plus text-amber-500"></i><span>Create New Project</span>';
-                nameInput.value = '';
-            } else {
-                titleEl.innerHTML = '<i class="fa-regular fa-pen-to-square text-amber-500"></i><span>Rename Project</span>';
-                const proj = projects.find(p => p.id === id);
-                if (proj) {
-                    nameInput.value = proj.name;
-                }
-            }
-
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                box.classList.remove('scale-95');
-                box.classList.add('scale-100');
-            }, 10);
-        }
-
-        let editingProjectId = null;
-
-        function closeProjectModal() {
-            const modal = document.getElementById('project-modal');
-            const box = document.getElementById('project-modal-box');
-            modal.classList.add('opacity-0');
-            box.classList.remove('scale-100');
-            box.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 200);
+            document.getElementById('project-modal-title').innerHTML = mode === 'add' ? '<i class="fa-solid fa-folder-plus text-amber-500"></i><span>Create New Project</span>' : '<i class="fa-regular fa-pen-to-square text-amber-500"></i><span>Rename Project</span>';
+            const proj = mode === 'edit' ? projects.find(p => p.id === id) : null;
+            document.getElementById('modal-project-name').value = proj ? proj.name : '';
+            openModal('project-modal', 'project-modal-box');
         }
 
         function handleProjectFormSubmit(e) {
@@ -1276,46 +865,29 @@
 
             if (projectModalMode === 'edit' && editingProjectId) {
                 const proj = projects.find(p => p.id === editingProjectId);
-                if (proj) {
-                    proj.name = name;
-                }
-                showToast('Project renamed successfully');
+                if (proj) proj.name = name;
             } else {
-                const newProj = {
-                    id: 'proj_' + Date.now(),
-                    name: name
-                };
+                const newProj = { id: 'proj_' + Date.now(), name };
                 projects.push(newProj);
                 selectedProjectId = newProj.id;
                 isGlobalPerfActive = false;
-                showToast('Project created successfully');
             }
-
-            closeProjectModal();
+            closeModal('project-modal', 'project-modal-box');
             saveDataAndRefresh();
-            if (!isGlobalPerfActive && selectedProjectId) {
-                selectProject(selectedProjectId);
-            }
+            if (!isGlobalPerfActive && selectedProjectId) selectProject(selectedProjectId);
+            showToast('Project saved successfully');
         }
 
         function showToast(message) {
             const toast = document.getElementById('toast');
-            const textEl = document.getElementById('toast-text');
-            if (!toast || !textEl) return;
-            textEl.innerText = message;
+            document.getElementById('toast-text').innerText = message;
             toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/&/g, "&amp;")
-                      .replace(/</g, "&lt;")
-                      .replace(/>/g, "&gt;")
-                      .replace(/"/g, "&quot;")
-                      .replace(/'/g, "&#039;");
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>
